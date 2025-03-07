@@ -1,11 +1,25 @@
 #pragma once
+#include "Texture.h"
 #include <glm/vec4.hpp>
+#include <glm/vec3.hpp>
 #include <glm/vec2.hpp>
+#include <vector>
+
+namespace aie { class ShaderProgram; }
 
 class Mesh
 {
 public:
-	Mesh();
+	glm::vec3 Ka;
+	glm::vec3 Kd;
+	glm::vec3 Ks;
+	float specularPower;
+
+	aie::Texture mapKd;
+	aie::Texture mapKs;
+	aie::Texture mapBump;
+
+	Mesh() : triCount(0), vao(0), vbo(0), ibo(0) {}
 	virtual ~Mesh();
 
 	struct Vertex
@@ -13,9 +27,17 @@ public:
 		glm::vec4 position;
 		glm::vec4 normal;
 		glm::vec2 texCoord;
+		glm::vec4 tangent;
 	};
 
+	void ApplyMaterial(aie::ShaderProgram* shader);
+	void LoadMaterial(const char* filename);
+
+	void InitialiseFromFile(const char* filename);
+	void Initialise(unsigned int vertexCount, const Vertex* vertices, unsigned int indexCount = 0, unsigned int* indices = nullptr);
 	void InitialiseQuad();
+
+	void CalculateTangents(Vertex* vertices, unsigned int vertexCount, const std::vector<unsigned int>& indices);
 
 	virtual void Draw();
 

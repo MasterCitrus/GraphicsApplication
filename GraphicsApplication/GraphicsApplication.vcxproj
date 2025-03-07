@@ -70,6 +70,16 @@
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);</IncludePath>
+    <ExecutablePath>$(VC_ExecutablePath_x86);$(CommonExecutablePath)</ExecutablePath>
+    <ReferencePath>$(VC_ReferencesPath_x86);</ReferencePath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);</IncludePath>
+    <ExecutablePath>$(VC_ExecutablePath_x64);$(CommonExecutablePath)</ExecutablePath>
+    <ReferencePath>$(VC_ReferencesPath_x64);</ReferencePath>
+  </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
@@ -81,7 +91,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>glfw3.lib;opengl32.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>assimp-vc143-mtd.lib;glfw3.lib;opengl32.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(SolutionDir)dep/lib;</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
@@ -100,7 +110,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>glfw3.lib;opengl32.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>assimp-vc143-mt.lib;glfw3.lib;opengl32.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(SolutionDir)dep/lib;</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
@@ -115,7 +125,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>glfw3.lib;opengl32.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>assimp-vc143-mtd.lib;glfw3.lib;opengl32.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(SolutionDir)dep/lib;</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
@@ -134,12 +144,25 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>glfw3.lib;opengl32.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>assimp-vc143-mt.lib;glfw3.lib;opengl32.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(SolutionDir)dep/lib;</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\dep\include\imgui\imgui.cpp" />
+    <ClCompile Include="..\dep\include\imgui\imgui_demo.cpp" />
+    <ClCompile Include="..\dep\include\imgui\imgui_draw.cpp" />
+    <ClCompile Include="..\dep\include\imgui\imgui_impl_glfw.cpp" />
+    <ClCompile Include="..\dep\include\imgui\imgui_impl_opengl3.cpp" />
+    <ClCompile Include="..\dep\include\imgui\imgui_tables.cpp" />
+    <ClCompile Include="..\dep\include\imgui\imgui_widgets.cpp" />
+    <ClCompile Include="Camera.cpp" />
+    <ClCompile Include="Instance.cpp" />
+    <ClCompile Include="Light.cpp" />
     <ClCompile Include="Mesh.cpp" />
+    <ClCompile Include="Scene.cpp" />
+    <ClCompile Include="Shader.cpp" />
+    <ClCompile Include="Texture.cpp" />
     <ClCompile Include="Viewer3D.cpp" />
     <ClCompile Include="Application.cpp" />
     <ClCompile Include="Gizmos.cpp" />
@@ -147,10 +170,33 @@
     <ClCompile Include="Main.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\dep\include\imgui\imconfig.h" />
+    <ClInclude Include="..\dep\include\imgui\imgui.h" />
+    <ClInclude Include="..\dep\include\imgui\imgui_impl_glfw.h" />
+    <ClInclude Include="..\dep\include\imgui\imgui_impl_opengl3.h" />
+    <ClInclude Include="..\dep\include\imgui\imgui_impl_opengl3_loader.h" />
+    <ClInclude Include="..\dep\include\imgui\imgui_internal.h" />
+    <ClInclude Include="..\dep\include\imgui\imstb_rectpack.h" />
+    <ClInclude Include="..\dep\include\imgui\imstb_textedit.h" />
+    <ClInclude Include="..\dep\include\imgui\imstb_truetype.h" />
+    <ClInclude Include="Camera.h" />
+    <ClInclude Include="Instance.h" />
+    <ClInclude Include="Light.h" />
     <ClInclude Include="Mesh.h" />
+    <ClInclude Include="Scene.h" />
+    <ClInclude Include="Shader.h" />
+    <ClInclude Include="Texture.h" />
     <ClInclude Include="Viewer3D.h" />
     <ClInclude Include="Application.h" />
     <ClInclude Include="Gizmos.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\bin\Shaders\normal.frag" />
+    <None Include="..\bin\Shaders\normal.vert" />
+    <None Include="..\bin\Shaders\phong.frag" />
+    <None Include="..\bin\Shaders\phong.vert" />
+    <None Include="simple.frag" />
+    <None Include="simple.vert" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

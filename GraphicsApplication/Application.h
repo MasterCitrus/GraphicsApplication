@@ -1,4 +1,6 @@
 #pragma once
+#include "Camera.h"
+#include <glm/vec2.hpp>
 
 struct GLFWwindow;
 
@@ -30,10 +32,21 @@ public:
 
 	float GetTime() const;
 
+	glm::vec2 GetMousePosition() { return mousePos; }
+	glm::vec2 GetMouseDelta() { return mousePos - lastMousePos; }
+
+	static Application* Get() { return instance; }
+	static void SetMousePosition(GLFWwindow* window, double x, double y);
+
 protected:
 	virtual bool CreateWindow(const char* title, int width, int height, bool fullscreen);
 	virtual void DestroyWindow();
 
+	Camera camera;
+
+	glm::vec2 mousePos;
+	glm::vec2 lastMousePos;
+	static Application* instance;
 	GLFWwindow* window;
 	unsigned int fps;
 	bool quit;

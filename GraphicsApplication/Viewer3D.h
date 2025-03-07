@@ -1,6 +1,13 @@
 #pragma once
 #include "Application.h"
+#include "Texture.h"
+#include "Mesh.h"
+#include "Shader.h"
+#include "Light.h"
+#include "Instance.h"
 #include <glm/mat4x4.hpp>
+
+using aie::ShaderProgram;
 
 class Viewer3D : public Application
 {
@@ -14,6 +21,12 @@ public:
 	virtual void Draw();
 
 protected:
-	glm::mat4 projection;
-	glm::mat4 view;
+	ShaderProgram shader;
+	ShaderProgram normalShader;
+
+	Scene* scene;
+
+	Mesh mesh;
+
+	glm::vec3 ambientLight;
 };

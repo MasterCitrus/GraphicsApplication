@@ -1,24 +1,37 @@
 #include "Application.h"
+#include "imgui/imgui.h"
+#include "imgui/imgui_impl_glfw.h"
+#include "imgui/imgui_impl_opengl3.h"
 #include <iostream>
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
 #include <glm/ext.hpp>
 
+Application* Application::instance = nullptr;
+
 Application::Application() : window(nullptr), quit(false), fps(0)
 {
-
+	
 }
 
 Application::~Application()
 {
-
+	
 }
 
 void Application::Run(const char* title, int width, int height, bool fullscreen)
 {
+
 	if (CreateWindow(title, width, height, fullscreen) && Startup())
 	{
+		IMGUI_CHECKVERSION();
+		ImGui::CreateContext();
+		ImGuiIO& io = ImGui::GetIO(); (void)io;
+		ImGui::StyleColorsDark();
+		ImGui_ImplGlfw_InitForOpenGL(window, true);
+		ImGui_ImplOpenGL3_Init("#version 410");
+
 		double prevTime = glfwGetTime();
 		double currTime = 0;
 		double deltaTime = 0;
@@ -33,7 +46,6 @@ void Application::Run(const char* title, int width, int height, bool fullscreen)
 
 			prevTime = currTime;
 
-			glfwPollEvents();
 
 			if (glfwGetWindowAttrib(window, GLFW_ICONIFIED) != 0) continue;
 
@@ -48,11 +60,26 @@ void Application::Run(const char* title, int width, int height, bool fullscreen)
 
 			Update((float)deltaTime);
 
+			camera.Update((float)deltaTime, window);
+
 			Draw();
 
+			lastMousePos = mousePos;
+
+			if (glfwGetKey(window, GLFW_KEY_ESCAPE)) Quit();
+
+			ImGui::Render();
+			ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+
 			glfwSwapBuffers(window);
+			glfwPollEvents();
+
 			quit = quit || glfwWindowShouldClose(window) == GLFW_TRUE;
 		}
+
+		ImGui_ImplOpenGL3_Shutdown();
+		ImGui_ImplGlfw_Shutdown();
+		ImGui::DestroyContext();
 	}
 
 	Shutdown();
@@ -101,6 +128,12 @@ unsigned int Application::GetWindowHeight() const
 float Application::GetTime() const
 {
 	return (float)glfwGetTime();
+}
+
+void Application::SetMousePosition(GLFWwindow* window, double x, double y)
+{
+	instance->mousePos.x = (float)x;
+	instance->mousePos.y = (float)y;
 }
 
 bool Application::CreateWindow(const char* title, int width, int height, bool fullscreen)
