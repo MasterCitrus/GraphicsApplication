@@ -1,4 +1,7 @@
 #include "Model.h"
+#include <assimp/Importer.hpp>
+#include <assimp/postprocess.h>
+#include <string>
 
 
 Model::Model(const char* path)
@@ -22,9 +25,11 @@ void Model::Draw(ShaderProgram* shader)
 
 void Model::LoadModel(const char* path)
 {
-	const aiScene* scene = aiImportFile(path, 0);
+	Assimp::Importer import;
 
-	int meshCount = scene->mNumMeshes;
+	std::string temp = path;
+	//aiImportFile(path, 0)
+	const aiScene* scene = import.ReadFile(temp, aiProcess_Triangulate);
 
 	ProcessNode(scene->mRootNode, scene);
 }

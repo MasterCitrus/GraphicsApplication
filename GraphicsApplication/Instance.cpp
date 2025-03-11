@@ -43,7 +43,7 @@ void Instance::Draw(Scene* scene)
 
 	shader->bindUniform("ModelMatrix", transform);
 	shader->bindUniform("AmbientColour", scene->GetAmbientLight());
-	shader->bindUniform("LightColour", scene->GetLight().colour);
+	shader->bindUniform("LightColour", scene->GetLight().colour * scene->GetLight().intensity);
 	shader->bindUniform("LightDirection", scene->GetLight().direction);
 
 	shader->bindUniform("CameraPosition", scene->GetCamera()->GetPosition());

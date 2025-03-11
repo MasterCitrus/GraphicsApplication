@@ -8,7 +8,7 @@
 #include <string>
 #include <sstream>
 
-Mesh::Mesh(Vertex* vertices, unsigned int* indices, unsigned int indexCount, unsigned int vertexCount)
+Mesh::Mesh(Vertex* vertices, unsigned int* indices, unsigned int indexCount, unsigned int vertexCount) : triCount(0), vao(0), vbo(0), ibo(0)
 {
 	Initialise(vertexCount, vertices, indexCount, indices);
 }
@@ -22,16 +22,16 @@ Mesh::~Mesh()
 
 void Mesh::ApplyMaterial(aie::ShaderProgram* shader)
 {
-	shader->bindUniform("Ka", Ka);
-	shader->bindUniform("Kd", Kd);
-	shader->bindUniform("Ks", Ks);
-	shader->bindUniform("specularPower", specularPower);
+	shader->bindUniform("Ka", meshMaterial.Ka);
+	shader->bindUniform("Kd", meshMaterial.Kd);
+	shader->bindUniform("Ks", meshMaterial.Ks);
+	shader->bindUniform("specularPower", meshMaterial.shininess);
 
-	mapKd.bind(0);
+	meshMaterial.mapKd.bind(0);
 	shader->bindUniform("diffuseTex", 0);
-	mapKs.bind(1);
+	meshMaterial.mapKs.bind(1);
 	shader->bindUniform("specularTex", 1);
-	mapBump.bind(2);
+	meshMaterial.mapBump.bind(2);
 	shader->bindUniform("normalTex", 2);
 }
 
@@ -55,30 +55,30 @@ void Mesh::LoadMaterial(const char* filename)
 		line = buffer;
 		std::stringstream ss(line, std::stringstream::in | std::stringstream::out);
 
-		if (line.find("Ka") == 0) ss >> header >> Ka.x >> Ka.y >> Ka.z;
-		else if (line.find("Kd") == 0) ss >> header >> Kd.x >> Kd.y >> Kd.z;
-		else if (line.find("Ks") == 0) ss >> header >> Ks.z >> Ks.y >> Ks.z;
-		else if (line.find("Ns") == 0) ss >> header >> specularPower;
+		if (line.find("Ka") == 0) ss >> header >> meshMaterial.Ka.x >> meshMaterial.Ka.y >> meshMaterial.Ka.z;
+		else if (line.find("Kd") == 0) ss >> header >> meshMaterial.Kd.x >> meshMaterial.Kd.y >> meshMaterial.Kd.z;
+		else if (line.find("Ks") == 0) ss >> header >> meshMaterial.Ks.z >> meshMaterial.Ks.y >> meshMaterial.Ks.z;
+		else if (line.find("Ns") == 0) ss >> header >> meshMaterial.shininess;
 		else if (line.find("map_Kd") == 0)
 		{
 			std::string mapFilename;
 			ss >> header >> mapFilename;
 			std::string fileName = directory + mapFilename;
-			mapKd.load(fileName.c_str());
+			meshMaterial.mapKd.load(fileName.c_str());
 		}
 		else if (line.find("map_Ks") == 0)
 		{
 			std::string mapFilename;
 			ss >> header >> mapFilename;
 			std::string fileName = directory + mapFilename;
-			mapKs.load(fileName.c_str());
+			meshMaterial.mapKs.load(fileName.c_str());
 		}
 		else if (line.find("bump") == 0)
 		{
 			std::string mapFilename;
 			ss >> header >> mapFilename;
 			std::string fileName = directory + mapFilename;
-			mapBump.load(fileName.c_str());
+			meshMaterial.mapBump.load(fileName.c_str());
 		}
 	}
 }

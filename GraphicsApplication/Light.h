@@ -6,8 +6,12 @@ struct Light
 	Light() = default;
 	Light(glm::vec3 position, glm::vec3 colour, float intesity);
 
+	void Draw();
+
 	glm::vec3 direction;
 	glm::vec3 colour;
 
 	float intensity = 0.0f;
+
+	bool debug = false;
 };

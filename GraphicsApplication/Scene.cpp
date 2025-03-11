@@ -21,6 +21,7 @@ void Scene::Draw()
 	{
 		pointLightPositions[i] = pointLights[i].direction;
 		pointLightColours[i] = pointLights[i].colour * pointLights[i].intensity;
+		pointLights[i].Draw();
 	}
 
 	for (auto it = instances.begin(); it != instances.end(); it++)

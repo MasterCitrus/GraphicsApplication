@@ -4,7 +4,7 @@
 
 using aie::Texture;
 
-class Material
+struct Material
 {
 	Texture mapKd;
 	Texture mapKs;

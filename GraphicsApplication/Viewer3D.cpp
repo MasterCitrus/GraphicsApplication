@@ -10,6 +10,7 @@
 #include "imgui/imgui_impl_glfw.h"
 #include "imgui/imgui_impl_opengl3.h"
 #include <GLFW/glfw3.h>
+#include <string>
 
 using aie::Gizmos;
 
@@ -39,17 +40,21 @@ bool Viewer3D::Startup()
 		return false;
 	}
 
-	model.LoadModel("../Working/soulspear.obj");
-	model.LoadMaterials("../Working/soulspear.mtl");
+	//model.LoadModel("../Working/soulspear.obj");
+	//model.LoadMaterials("../Working/soulspear.mtl");
+
+	model.LoadModel("../Working/Swoop Model.fbx");
 
 	//mesh.InitialiseFromFile("../Working/soulspear.obj");
 	//mesh.LoadMaterial("../Working/soulspear.mtl");
 	glm::mat4 meshTransform = {
-		1, 0, 0, 0,
-		0, 1, 0, 0,
-		0, 0, 1, 0,
-		0, 0, 0, 1
+		1.f, 0.f, 0.f, 0.f,
+		0.f, 1.f, 0.f, 0.f,
+		0.f, 0.f, 1.f, 0.f,
+		0.f, 0.f, 0.f, 1.f
 	};
+
+	glm::scale(meshTransform, { 0.000001f, 0.000001f, 0.000001f });
 
 	Light light;
 	light.colour = { 1, 1, 1 };
@@ -133,9 +138,12 @@ void Viewer3D::Draw()
 	ImGui::DragFloat3("##SunlightDirection", &scene->GetLight().direction[0], 0.1f, -1.0f, 1.0f);
 	ImGui::Text("Sunlight Colour   ");
 	ImGui::SameLine();
-	ImGui::DragFloat3("##SunlightColour", &scene->GetLight().colour[0], 0.1f, 0.0f, 2.0f);
+	ImGui::ColorEdit3("##SunlightColour", &scene->GetLight().colour[0]);
+	ImGui::Text("Sunlight Intensity");
+	ImGui::SameLine();
+	ImGui::SliderFloat("##SunlightIntensity", &scene->GetLight().intensity, 0.0f, 100.0f);
 	ImGui::SeparatorText("Point Lights");
-	ImGui::BeginChild("LightList", ImVec2(100, 200), true);
+	ImGui::BeginChild("LightList", ImVec2(70, 200), true);
 	static int selected = 0;
 	for (int i = 0; i < scene->GetPointLights().size(); i++)
 	{
@@ -154,10 +162,16 @@ void Viewer3D::Draw()
 	ImGui::DragFloat3("##LightPosition", &scene->GetPointLights()[selected].direction[0], 0.1f, -100.0f, 100.0f);
 	ImGui::Text("Light Colour   ");
 	ImGui::SameLine();
-	ImGui::DragFloat3("##LightColour", &scene->GetPointLights()[selected].colour[0], 0.1f, 0.0f, 2.0f);
+	ImGui::ColorEdit3("##LightColour", &scene->GetPointLights()[selected].colour[0]);
 	ImGui::Text("Light Intensity");
 	ImGui::SameLine();
 	ImGui::SliderFloat("##LightIntensity", &scene->GetPointLights()[selected].intensity, 0.0f, 100.f);
+	ImGui::Text("Debug Draw");
+	ImGui::SameLine();
+	ImGui::Checkbox("##DebugDraw", &scene->GetPointLights()[selected].debug);
 	ImGui::EndChild();
+	ImGui::SeparatorText("Model Details");
+	std::string meshCount = std::to_string(model.GetMeshes().size());
+	ImGui::Text(meshCount.c_str());
 	ImGui::End();
 }

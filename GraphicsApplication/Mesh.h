@@ -1,5 +1,6 @@
 #pragma once
 #include "Texture.h"
+#include "MAterial.h"
 #include <glm/vec4.hpp>
 #include <glm/vec3.hpp>
 #include <glm/vec2.hpp>
@@ -10,14 +11,7 @@ namespace aie { class ShaderProgram; }
 class Mesh
 {
 public:
-	glm::vec3 Ka;
-	glm::vec3 Kd;
-	glm::vec3 Ks;
-	float specularPower;
-
-	aie::Texture mapKd;
-	aie::Texture mapKs;
-	aie::Texture mapBump;
+	Material meshMaterial;
 
 	struct Vertex
 	{
