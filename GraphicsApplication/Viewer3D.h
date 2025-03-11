@@ -2,6 +2,7 @@
 #include "Application.h"
 #include "Texture.h"
 #include "Mesh.h"
+#include "Model.h"
 #include "Shader.h"
 #include "Light.h"
 #include "Instance.h"
@@ -25,6 +26,8 @@ protected:
 	ShaderProgram normalShader;
 
 	Scene* scene;
+
+	Model model;
 
 	Mesh mesh;
 

@@ -1,16 +1,16 @@
 #include "Instance.h"
 #include "Shader.h"
-#include "Mesh.h"
+#include "Model.h"
 #include "Scene.h"
 #include "Camera.h"
 #include "Light.h"
 #include <glm/ext.hpp>
 
-Instance::Instance(glm::mat4 transform, Mesh* mesh, aie::ShaderProgram* shader) : transform(transform), mesh(mesh), shader(shader)
+Instance::Instance(glm::mat4 transform, Model* mesh, aie::ShaderProgram* shader) : transform(transform), mesh(mesh), shader(shader)
 {
 }
 
-Instance::Instance(glm::vec3 position, glm::vec3 eulerAngles, glm::vec3 scale, Mesh* mesh, aie::ShaderProgram* shader) : mesh(mesh), shader(shader)
+Instance::Instance(glm::vec3 position, glm::vec3 eulerAngles, glm::vec3 scale, Model* mesh, aie::ShaderProgram* shader) : mesh(mesh), shader(shader)
 {
 	transform = MakeTransform(position, eulerAngles, scale);
 }
@@ -30,7 +30,7 @@ void Instance::Draw(Camera* camera, float windowWidth, float windowHeight, glm::
 
 	shader->bindUniform("cameraPosition", camera->GetPosition());
 
-	mesh->Draw();
+	mesh->Draw(shader);
 }
 
 void Instance::Draw(Scene* scene)
@@ -53,7 +53,7 @@ void Instance::Draw(Scene* scene)
 	shader->bindUniform("PointLightPosition", numLights, scene->GetLightPositions());
 	shader->bindUniform("PointLightColour", numLights, scene->GetLightColours());
 
-	mesh->Draw();
+	mesh->Draw(shader);
 }
 
 glm::mat4 Instance::MakeTransform(glm::vec3 position, glm::vec3 eulerAngles, glm::vec3 scale)

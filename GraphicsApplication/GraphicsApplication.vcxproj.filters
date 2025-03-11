@@ -13,150 +13,183 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="ImGui">
+    <Filter Include="Header Files\Engine">
+      <UniqueIdentifier>{e01fdfae-6426-4e91-b1df-a33d6a32a9d9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Third Party">
+      <UniqueIdentifier>{5d452d56-09a5-4136-8643-5c9831d8f9e6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Applications">
+      <UniqueIdentifier>{ff556269-574f-45e8-9e48-ff77cc724c0d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Engine">
+      <UniqueIdentifier>{3934d024-961b-4ae9-a70b-18d53b765933}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Third Party">
+      <UniqueIdentifier>{803662da-a2e1-4764-9675-43c0990634b8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Application">
+      <UniqueIdentifier>{1389697e-a81b-40db-ac92-0f6d81ae4011}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Third Party\AIE">
+      <UniqueIdentifier>{b20cf751-3f02-4c9d-ab13-85237d9e66ea}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Application\3D Viewer">
+      <UniqueIdentifier>{52590a51-d6cb-4a66-a042-657bdcdca3c8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Applications\3D Viewer">
+      <UniqueIdentifier>{5bf52381-3654-4b6c-b0da-d8c4ca9c972b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Third Party\AIE">
+      <UniqueIdentifier>{b1022ae0-2c7e-48aa-b7f6-7c9c5953ece6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Third Party\ImGui">
+      <UniqueIdentifier>{6a080b49-f84d-440d-b31b-8732fdff30bf}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Third Party\ImGui">
       <UniqueIdentifier>{fe393b1a-db00-413c-9ea2-a0eacaf3777f}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Main.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="glad.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Gizmos.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Application.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Viewer3D.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Mesh.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Shader.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Camera.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\dep\include\imgui\imgui.cpp">
-      <Filter>ImGui</Filter>
+      <Filter>Source Files\Third Party\ImGui</Filter>
     </ClCompile>
     <ClCompile Include="..\dep\include\imgui\imgui_demo.cpp">
-      <Filter>ImGui</Filter>
+      <Filter>Source Files\Third Party\ImGui</Filter>
     </ClCompile>
     <ClCompile Include="..\dep\include\imgui\imgui_draw.cpp">
-      <Filter>ImGui</Filter>
+      <Filter>Source Files\Third Party\ImGui</Filter>
     </ClCompile>
     <ClCompile Include="..\dep\include\imgui\imgui_impl_glfw.cpp">
-      <Filter>ImGui</Filter>
+      <Filter>Source Files\Third Party\ImGui</Filter>
     </ClCompile>
     <ClCompile Include="..\dep\include\imgui\imgui_impl_opengl3.cpp">
-      <Filter>ImGui</Filter>
+      <Filter>Source Files\Third Party\ImGui</Filter>
     </ClCompile>
     <ClCompile Include="..\dep\include\imgui\imgui_tables.cpp">
-      <Filter>ImGui</Filter>
+      <Filter>Source Files\Third Party\ImGui</Filter>
     </ClCompile>
     <ClCompile Include="..\dep\include\imgui\imgui_widgets.cpp">
-      <Filter>ImGui</Filter>
+      <Filter>Source Files\Third Party\ImGui</Filter>
     </ClCompile>
-    <ClCompile Include="Texture.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="Application.cpp">
+      <Filter>Source Files\Engine</Filter>
+    </ClCompile>
+    <ClCompile Include="Camera.cpp">
+      <Filter>Source Files\Engine</Filter>
     </ClCompile>
     <ClCompile Include="Instance.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\Engine</Filter>
     </ClCompile>
     <ClCompile Include="Light.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\Engine</Filter>
     </ClCompile>
-    <ClCompile Include="Scene.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Model.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Transform.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Object.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="Main.cpp">
+      <Filter>Source Files\Engine</Filter>
     </ClCompile>
     <ClCompile Include="Material.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\Engine</Filter>
+    </ClCompile>
+    <ClCompile Include="Mesh.cpp">
+      <Filter>Source Files\Engine</Filter>
+    </ClCompile>
+    <ClCompile Include="Model.cpp">
+      <Filter>Source Files\Engine</Filter>
+    </ClCompile>
+    <ClCompile Include="Object.cpp">
+      <Filter>Source Files\Engine</Filter>
+    </ClCompile>
+    <ClCompile Include="Scene.cpp">
+      <Filter>Source Files\Engine</Filter>
+    </ClCompile>
+    <ClCompile Include="Transform.cpp">
+      <Filter>Source Files\Engine</Filter>
+    </ClCompile>
+    <ClCompile Include="glad.c">
+      <Filter>Source Files\Third Party</Filter>
+    </ClCompile>
+    <ClCompile Include="Gizmos.cpp">
+      <Filter>Source Files\Third Party\AIE</Filter>
+    </ClCompile>
+    <ClCompile Include="Shader.cpp">
+      <Filter>Source Files\Third Party\AIE</Filter>
+    </ClCompile>
+    <ClCompile Include="Texture.cpp">
+      <Filter>Source Files\Third Party\AIE</Filter>
+    </ClCompile>
+    <ClCompile Include="Viewer3D.cpp">
+      <Filter>Source Files\Application\3D Viewer</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Application.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Gizmos.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Viewer3D.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Mesh.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Shader.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\Engine</Filter>
     </ClInclude>
     <ClInclude Include="Camera.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\dep\include\imgui\imconfig.h">
-      <Filter>ImGui</Filter>
-    </ClInclude>
-    <ClInclude Include="..\dep\include\imgui\imgui.h">
-      <Filter>ImGui</Filter>
-    </ClInclude>
-    <ClInclude Include="..\dep\include\imgui\imgui_impl_glfw.h">
-      <Filter>ImGui</Filter>
-    </ClInclude>
-    <ClInclude Include="..\dep\include\imgui\imgui_impl_opengl3.h">
-      <Filter>ImGui</Filter>
-    </ClInclude>
-    <ClInclude Include="..\dep\include\imgui\imgui_internal.h">
-      <Filter>ImGui</Filter>
-    </ClInclude>
-    <ClInclude Include="..\dep\include\imgui\imstb_rectpack.h">
-      <Filter>ImGui</Filter>
-    </ClInclude>
-    <ClInclude Include="..\dep\include\imgui\imstb_textedit.h">
-      <Filter>ImGui</Filter>
-    </ClInclude>
-    <ClInclude Include="..\dep\include\imgui\imstb_truetype.h">
-      <Filter>ImGui</Filter>
-    </ClInclude>
-    <ClInclude Include="..\dep\include\imgui\imgui_impl_opengl3_loader.h">
-      <Filter>ImGui</Filter>
-    </ClInclude>
-    <ClInclude Include="Texture.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\Engine</Filter>
     </ClInclude>
     <ClInclude Include="Instance.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\Engine</Filter>
     </ClInclude>
     <ClInclude Include="Light.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Scene.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Model.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Transform.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Object.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\Engine</Filter>
     </ClInclude>
     <ClInclude Include="Material.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="Mesh.h">
+      <Filter>Header Files\Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="Model.h">
+      <Filter>Header Files\Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="Object.h">
+      <Filter>Header Files\Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="Scene.h">
+      <Filter>Header Files\Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="Transform.h">
+      <Filter>Header Files\Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="Viewer3D.h">
+      <Filter>Header Files\Applications\3D Viewer</Filter>
+    </ClInclude>
+    <ClInclude Include="Gizmos.h">
+      <Filter>Header Files\Third Party\AIE</Filter>
+    </ClInclude>
+    <ClInclude Include="Shader.h">
+      <Filter>Header Files\Third Party\AIE</Filter>
+    </ClInclude>
+    <ClInclude Include="Texture.h">
+      <Filter>Header Files\Third Party\AIE</Filter>
+    </ClInclude>
+    <ClInclude Include="..\dep\include\imgui\imconfig.h">
+      <Filter>Header Files\Third Party\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\dep\include\imgui\imgui.h">
+      <Filter>Header Files\Third Party\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\dep\include\imgui\imgui_impl_glfw.h">
+      <Filter>Header Files\Third Party\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\dep\include\imgui\imgui_impl_opengl3.h">
+      <Filter>Header Files\Third Party\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\dep\include\imgui\imgui_impl_opengl3_loader.h">
+      <Filter>Header Files\Third Party\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\dep\include\imgui\imgui_internal.h">
+      <Filter>Header Files\Third Party\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\dep\include\imgui\imstb_rectpack.h">
+      <Filter>Header Files\Third Party\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\dep\include\imgui\imstb_truetype.h">
+      <Filter>Header Files\Third Party\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\dep\include\imgui\imstb_textedit.h">
+      <Filter>Header Files\Third Party\ImGui</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

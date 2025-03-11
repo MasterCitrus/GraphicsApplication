@@ -8,6 +8,11 @@
 #include <string>
 #include <sstream>
 
+Mesh::Mesh(Vertex* vertices, unsigned int* indices, unsigned int indexCount, unsigned int vertexCount)
+{
+	Initialise(vertexCount, vertices, indexCount, indices);
+}
+
 Mesh::~Mesh()
 {
 	glDeleteVertexArrays(1, &vao);
@@ -38,7 +43,7 @@ void Mesh::LoadMaterial(const char* filename)
 	char buffer[256];
 
 	std::string directory(filename);
-	int index = directory.rfind('/');
+	int index = directory.find_last_of('/');
 	if (index != -1)
 	{
 		directory = directory.substr(0, index + 1);
@@ -58,19 +63,22 @@ void Mesh::LoadMaterial(const char* filename)
 		{
 			std::string mapFilename;
 			ss >> header >> mapFilename;
-			mapKd.load((directory + mapFilename).c_str());
+			std::string fileName = directory + mapFilename;
+			mapKd.load(fileName.c_str());
 		}
 		else if (line.find("map_Ks") == 0)
 		{
 			std::string mapFilename;
 			ss >> header >> mapFilename;
-			mapKs.load((directory + mapFilename).c_str());
+			std::string fileName = directory + mapFilename;
+			mapKs.load(fileName.c_str());
 		}
 		else if (line.find("bump") == 0)
 		{
 			std::string mapFilename;
 			ss >> header >> mapFilename;
-			mapBump.load((directory + mapFilename).c_str());
+			std::string fileName = directory + mapFilename;
+			mapBump.load(fileName.c_str());
 		}
 	}
 }
@@ -137,16 +145,16 @@ void Mesh::Initialise(unsigned int vertexCount, const Vertex* vertices, unsigned
 	glBufferData(GL_ARRAY_BUFFER, vertexCount * sizeof(Vertex), vertices, GL_STATIC_DRAW);
 
 	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), 0);
+	glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, position));
 
 	glEnableVertexAttribArray(1);
-	glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)16);
+	glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, normal));
 
 	glEnableVertexAttribArray(2);
-	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)32);
+	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, texCoord));
 
 	glEnableVertexAttribArray(3);
-	glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)40);
+	glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, tangent));
 
 	if (indexCount != 0)
 	{

@@ -39,8 +39,11 @@ bool Viewer3D::Startup()
 		return false;
 	}
 
-	mesh.InitialiseFromFile("../Working/soulspear.obj");
-	mesh.LoadMaterial("../Working/soulspear.mtl");
+	model.LoadModel("../Working/soulspear.obj");
+	model.LoadMaterials("../Working/soulspear.mtl");
+
+	//mesh.InitialiseFromFile("../Working/soulspear.obj");
+	//mesh.LoadMaterial("../Working/soulspear.mtl");
 	glm::mat4 meshTransform = {
 		1, 0, 0, 0,
 		0, 1, 0, 0,
@@ -54,7 +57,7 @@ bool Viewer3D::Startup()
 	ambientLight = { 0.25f, 0.25f, 0.25f };
 
 	scene = new Scene(&camera, glm::vec2(GetWindowWidth(), GetWindowHeight()), &light, ambientLight);
-	scene->AddInstance(new Instance(glm::vec3(0, 0, 0), glm::vec3(0, 0, 0), glm::vec3(3, 3, 3), &mesh, &shader));
+	scene->AddInstance(new Instance(glm::vec3(0, 0, 0), glm::vec3(0, 0, 0), glm::vec3(3, 3, 3), &model, &shader));
 	
 	scene->AddLight(Light(glm::vec3(5, 3, 0), glm::vec3(1, 0, 0), 100));
 	scene->AddLight(Light(glm::vec3(-5, 3, 0), glm::vec3(0, 1, 0), 100));
@@ -116,7 +119,7 @@ void Viewer3D::Draw()
 						i == 10 ? white : black);
 	}
 
-	mesh.ApplyMaterial(&shader);
+	//mesh.ApplyMaterial(&shader);
 	//mesh.Draw();
 	scene->Draw();
 	//spearInstance->Draw(&camera, GetWindowWidth(), GetWindowHeight(), ambientLight, &light);
