@@ -29,6 +29,7 @@ public:
 	~Scene();
 
 	void Draw();
+	void Update(float delta);
 	void AddInstance(Instance* instance);
 	void AddLight(Light light);
 

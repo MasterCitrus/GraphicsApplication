@@ -35,6 +35,8 @@ public:
 	glm::vec2 GetMousePosition() { return mousePos; }
 	glm::vec2 GetMouseDelta() { return mousePos - lastMousePos; }
 
+	bool& GetFullscreen() { return fullscreen; }
+
 	static Application* Get() { return instance; }
 	static void SetMousePosition(GLFWwindow* window, double x, double y);
 
@@ -50,4 +52,5 @@ protected:
 	GLFWwindow* window;
 	unsigned int fps;
 	bool quit;
+	bool fullscreen;
 };

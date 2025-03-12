@@ -28,6 +28,7 @@ void Application::Run(const char* title, int width, int height, bool fullscreen)
 		IMGUI_CHECKVERSION();
 		ImGui::CreateContext();
 		ImGuiIO& io = ImGui::GetIO(); (void)io;
+		io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 		ImGui::StyleColorsDark();
 		ImGui_ImplGlfw_InitForOpenGL(window, true);
 		ImGui_ImplOpenGL3_Init("#version 410");
@@ -138,6 +139,8 @@ void Application::SetMousePosition(GLFWwindow* window, double x, double y)
 
 bool Application::CreateWindow(const char* title, int width, int height, bool fullscreen)
 {
+	this->fullscreen = fullscreen;
+
 	if (glfwInit() == false)
 	{
 		std::cout << "GLFW failed to initialise\n";

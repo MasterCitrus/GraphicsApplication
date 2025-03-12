@@ -11,6 +11,7 @@
 #include "imgui/imgui_impl_opengl3.h"
 #include <GLFW/glfw3.h>
 #include <string>
+#include <nfd/nfd.hpp>
 
 using aie::Gizmos;
 
@@ -40,10 +41,10 @@ bool Viewer3D::Startup()
 		return false;
 	}
 
-	//model.LoadModel("../Working/soulspear.obj");
-	//model.LoadMaterials("../Working/soulspear.mtl");
+	model.LoadModel("../Working/soulspear.obj");
+	model.LoadMaterials("../Working/soulspear.mtl");
 
-	model.LoadModel("../Working/Swoop Model.fbx");
+	//model.LoadModel("../Working/Swoop Model.fbx");
 
 	//mesh.InitialiseFromFile("../Working/soulspear.obj");
 	//mesh.LoadMaterial("../Working/soulspear.mtl");
@@ -54,18 +55,17 @@ bool Viewer3D::Startup()
 		0.f, 0.f, 0.f, 1.f
 	};
 
-	glm::scale(meshTransform, { 0.000001f, 0.000001f, 0.000001f });
-
 	Light light;
 	light.colour = { 1, 1, 1 };
 	light.direction = { 1, 1, -1 };
 	ambientLight = { 0.25f, 0.25f, 0.25f };
 
 	scene = new Scene(&camera, glm::vec2(GetWindowWidth(), GetWindowHeight()), &light, ambientLight);
-	scene->AddInstance(new Instance(glm::vec3(0, 0, 0), glm::vec3(0, 0, 0), glm::vec3(3, 3, 3), &model, &shader));
+	scene->AddInstance(new Instance(glm::vec3(0, 0, 0), glm::vec3(0, 0, 0), glm::vec3(1, 1, 1), &model, &shader));
 	
-	scene->AddLight(Light(glm::vec3(5, 3, 0), glm::vec3(1, 0, 0), 100));
+	scene->AddLight(Light(glm::vec3(5, 3, 0), glm::vec3(1, 1, 1), 100));
 	scene->AddLight(Light(glm::vec3(-5, 3, 0), glm::vec3(0, 1, 0), 100));
+	scene->AddLight(Light(glm::vec3(0, 5, 0), glm::vec3(0, 0, 1), 100));
 
 
 	return true;
@@ -79,8 +79,7 @@ void Viewer3D::Shutdown()
 
 void Viewer3D::Update(float delta)
 {
-	float time = GetTime();
-
+	scene->Update(delta);
 }
 
 void Viewer3D::Draw()
@@ -90,6 +89,33 @@ void Viewer3D::Draw()
 	ImGui_ImplOpenGL3_NewFrame();
 	ImGui_ImplGlfw_NewFrame();
 	ImGui::NewFrame();
+
+	//static ImGuiDockNodeFlags dockspace_flags = ImGuiDockNodeFlags_None;
+
+	//ImGuiWindowFlags window_flags = ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoDocking;
+
+	//if( fullscreen )
+	//{
+	//	const ImGuiViewport* viewport = ImGui::GetMainViewport();
+
+	//	ImGui::SetNextWindowPos(viewport->WorkPos);
+	//	ImGui::SetNextWindowSize(viewport->WorkSize);
+	//	ImGui::SetNextWindowViewport(viewport->ID);
+
+	//	ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
+	//	ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
+
+	//	window_flags |= ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove;
+	//	window_flags |= ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus;
+	//}
+	//else
+	//{
+	//	dockspace_flags &= ImGuiDockNodeFlags_PassthruCentralNode;
+	//}
+
+	//if( dockspace_flags & ImGuiDockNodeFlags_PassthruCentralNode ) window_flags |= ImGuiWindowFlags_NoBackground;
+
+	//ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
 
 	glm::mat4 pv = camera.GetProjectionMatrix((float)GetWindowWidth(), (float)GetWindowHeight()) * camera.GetViewMatrix();
 
@@ -131,6 +157,62 @@ void Viewer3D::Draw()
 
 	Gizmos::draw(pv);
 
+	//ImGui::PopStyleVar();
+	//if(fullscreen) ImGui::PopStyleVar(2);
+
+	//ImGuiIO& io = ImGui::GetIO();
+
+	//if( io.ConfigFlags & ImGuiConfigFlags_DockingEnable )
+	//{
+	//	ImGuiID dockspace_id = ImGui::GetID("MyDockSpace");
+	//	ImGui::DockSpaceOverViewport(dockspace_id, ImGui::GetMainViewport(), dockspace_flags);
+	//}
+	
+	if( ImGui::BeginMainMenuBar() )
+	{
+		if( ImGui::BeginMenu("File") )
+		{
+			if( ImGui::MenuItem("Import Model", nullptr) )
+			{
+				NFD::Guard nfdGuard;
+				NFD::UniquePath outPath;
+				nfdfilteritem_t filterModel[1] = { "Wavefront", "obj" };
+				nfdfilteritem_t filterMaterial[1] = { "Material", "mtl" };
+
+				nfdresult_t result = NFD::OpenDialog(outPath, filterModel, 1);
+				if( result == NFD_OKAY )
+				{
+					std::string path = outPath.get();
+					std::cout << path << '\n';
+					model.ResetModel();
+					model.LoadModel(path.c_str());
+					nfdresult_t result = NFD::OpenDialog(outPath, filterMaterial, 1);
+					if( result == NFD_OKAY )
+					{
+						path = outPath.get();
+						unsigned int index = path.find_first_of('\\');
+						std::string temp;
+						do
+						{
+							temp = path.substr(index + 1, path.end() - path.begin());
+							path.replace(path.begin() + index, path.end(), "/");
+							path += temp;
+							index = path.find_first_of('\\');
+						} while( index != -1 );
+						std::cout << path << '\n';
+						model.LoadMaterials(path.c_str());
+					}
+					else if( result == NFD_CANCEL ) std::cout << "Canceled\n";
+					else std::cout << "ERROR\n";
+				}
+				else if( result == NFD_CANCEL ) std::cout << "Canceled\n";
+				else std::cout << "ERROR\n";
+			}
+			ImGui::EndMenu();
+		}
+		ImGui::EndMainMenuBar();
+	}
+
 	ImGui::Begin("Light Settings");
 	ImGui::SeparatorText("Sunlight");
 	ImGui::Text("Sunlight Direction");
@@ -171,7 +253,6 @@ void Viewer3D::Draw()
 	ImGui::Checkbox("##DebugDraw", &scene->GetPointLights()[selected].debug);
 	ImGui::EndChild();
 	ImGui::SeparatorText("Model Details");
-	std::string meshCount = std::to_string(model.GetMeshes().size());
-	ImGui::Text(meshCount.c_str());
+	ImGui::Text("Mesh Count: %i", model.GetMeshes().size());
 	ImGui::End();
 }

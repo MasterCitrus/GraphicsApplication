@@ -31,6 +31,15 @@ void Scene::Draw()
 	}
 }
 
+void Scene::Update(float delta)
+{
+	for( auto it = instances.begin(); it != instances.end(); it++ )
+	{
+		Instance* instance = *it;
+		instance->Update(delta);
+	}
+}
+
 void Scene::AddInstance(Instance* instance)
 {
 	instances.push_back(instance);

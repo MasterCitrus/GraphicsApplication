@@ -2,6 +2,7 @@
 #include <assimp/Importer.hpp>
 #include <assimp/postprocess.h>
 #include <string>
+#include <iostream>
 
 
 Model::Model(const char* path)
@@ -31,6 +32,11 @@ void Model::LoadModel(const char* path)
 	//aiImportFile(path, 0)
 	const aiScene* scene = import.ReadFile(temp, aiProcess_Triangulate);
 
+	if( !scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode )
+	{
+		std::cout << "ASSIMP ERROR: " << import.GetErrorString() << '\n';
+	}
+
 	ProcessNode(scene->mRootNode, scene);
 }
 
@@ -42,11 +48,20 @@ void Model::LoadMaterials(const char* path)
 	}
 }
 
+void Model::ResetModel()
+{
+	for( auto mesh : meshes )
+	{
+		mesh->Clear();
+	}
+	meshes.clear();
+}
+
 void Model::ProcessNode(aiNode* node, const aiScene* scene)
 {
 	for( unsigned int i = 0; i < node->mNumMeshes; i++ )
 	{
-		aiMesh* inputMesh = scene->mMeshes[i];
+		aiMesh* inputMesh = scene->mMeshes[node->mMeshes[i]];
 		meshes.push_back(ProcessMesh(inputMesh, scene));
 	}
 

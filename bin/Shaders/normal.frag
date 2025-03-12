@@ -1,4 +1,4 @@
-#version 410
+#version 460
 
 in vec4 vPosition;
 in vec3 vNormal;
@@ -36,7 +36,7 @@ vec3 GetDiffuse(vec3 direction, vec3 colour, vec3 normal)
 vec3 GetSpecular(vec3 direction, vec3 colour, vec3 normal, vec3 view)
 {
 	vec3 R = reflect( direction, normal);
-	float specularTerm = pow( max( 0, dot( R, normal )), specularPower);
+	float specularTerm = pow( max( 0, dot( R, view )), specularPower);
 	return specularTerm * colour;
 }
 
@@ -79,4 +79,5 @@ void main()
 	vec3 specular = Ks * texSpecular * specularTotal;
 
 	FragColour = vec4(ambient + diffuse + specular, 1);
+
 }

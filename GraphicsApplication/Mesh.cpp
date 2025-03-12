@@ -57,7 +57,7 @@ void Mesh::LoadMaterial(const char* filename)
 
 		if (line.find("Ka") == 0) ss >> header >> meshMaterial.Ka.x >> meshMaterial.Ka.y >> meshMaterial.Ka.z;
 		else if (line.find("Kd") == 0) ss >> header >> meshMaterial.Kd.x >> meshMaterial.Kd.y >> meshMaterial.Kd.z;
-		else if (line.find("Ks") == 0) ss >> header >> meshMaterial.Ks.z >> meshMaterial.Ks.y >> meshMaterial.Ks.z;
+		else if (line.find("Ks") == 0) ss >> header >> meshMaterial.Ks.x >> meshMaterial.Ks.y >> meshMaterial.Ks.z;
 		else if (line.find("Ns") == 0) ss >> header >> meshMaterial.shininess;
 		else if (line.find("map_Kd") == 0)
 		{
@@ -223,6 +223,14 @@ void Mesh::InitialiseQuad()
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 
 	triCount = 2;
+}
+
+void Mesh::Clear()
+{
+	glDeleteVertexArrays(1, &vao);
+	glDeleteBuffers(1, &vbo);
+	glDeleteBuffers(1, &ibo);
+	triCount = 0;
 }
 
 void Mesh::CalculateTangents(Vertex* vertices, unsigned int vertexCount, const std::vector<unsigned int>& indices)

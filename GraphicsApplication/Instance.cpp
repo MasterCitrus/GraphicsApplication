@@ -15,6 +15,11 @@ Instance::Instance(glm::vec3 position, glm::vec3 eulerAngles, glm::vec3 scale, M
 	transform = MakeTransform(position, eulerAngles, scale);
 }
 
+void Instance::Update(float delta)
+{
+	transform = glm::rotate(transform, glm::radians(45.0f * delta), glm::vec3(0.0f, 1.0f, 0.0f));
+}
+
 void Instance::Draw(Camera* camera, float windowWidth, float windowHeight, glm::vec3& ambientLight, Light* light)
 {
 	shader->bind();

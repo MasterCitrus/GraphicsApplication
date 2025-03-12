@@ -20,6 +20,7 @@ public:
 	void Draw(ShaderProgram* shader);
 	void LoadModel(const char* path);
 	void LoadMaterials(const char* path);
+	void ResetModel();
 private:
 	std::vector<Mesh*> meshes;
 
