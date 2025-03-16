@@ -32,8 +32,8 @@ bool Viewer3D::Startup()
 	instance = this;
 	glfwSetCursorPosCallback(window, &Application::SetMousePosition);
 
-	shader.loadShader(aie::eShaderStage::VERTEX, "../bin/Shaders/normal.vert");
-	shader.loadShader(aie::eShaderStage::FRAGMENT, "../bin/Shaders/normal.frag");
+	shader.loadShader(aie::eShaderStage::VERTEX, "./bin/Shaders/normal.vert");
+	shader.loadShader(aie::eShaderStage::FRAGMENT, "./bin/Shaders/normal.frag");
 
 	if (shader.link() == false)
 	{
@@ -41,8 +41,8 @@ bool Viewer3D::Startup()
 		return false;
 	}
 
-	model.LoadModel("../Working/soulspear.obj");
-	model.LoadMaterials("../Working/soulspear.mtl");
+	model.LoadModel("./Working/soulspear.obj");
+	model.LoadMaterials("./Working/soulspear.mtl");
 
 	//model.LoadModel("../Working/Swoop Model.fbx");
 
