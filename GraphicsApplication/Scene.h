@@ -45,5 +45,5 @@ public:
 	glm::vec3* GetLightColours() { return pointLightColours; }
 
 	std::vector<Light>& GetPointLights() { return pointLights; }
-
+	std::list<Instance*> GetInstances() { return instances; }
 };

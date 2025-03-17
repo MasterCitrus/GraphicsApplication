@@ -12,6 +12,7 @@ Model::Model(const char* path)
 
 Model::~Model()
 {
+	for( Mesh* mesh : meshes ) delete mesh;
 	meshes.clear();
 }
 
@@ -53,6 +54,7 @@ void Model::ResetModel()
 	for( auto mesh : meshes )
 	{
 		mesh->Clear();
+		delete mesh;
 	}
 	meshes.clear();
 }
@@ -107,6 +109,11 @@ Mesh* Model::ProcessMesh(aiMesh* mesh, const aiScene* scene)
 		{
 			vertices[i].tangent = glm::vec4(mesh->mTangents[i].x, mesh->mTangents[i].y, mesh->mTangents[i].z, 1);
 		}
+	}
+
+	if( mesh->mMaterialIndex >= 0 )
+	{
+		aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
 	}
 
 	if( !mesh->HasTangentsAndBitangents() ) Mesh::CalculateTangents(vertices, numVertices, indices);

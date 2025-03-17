@@ -19,6 +19,16 @@ public:
 
 	glm::mat4 MakeTransform(glm::vec3 position, glm::vec3 eulerAngles, glm::vec3 scale);
 
+	void SetPosition(glm::vec3 position);
+	void SetRotation(glm::vec3 rotation);
+	void SetScale(glm::vec3 scale);
+
+	glm::mat4& GetTransform() { return transform; }
+
+	//glm::vec3 GetPosition();
+	//glm::vec3 GetRotation();
+	//glm::vec3 GetScale();
+
 protected:
 	glm::mat4 transform;
 	Model* mesh;

@@ -17,10 +17,12 @@ using aie::Gizmos;
 
 Viewer3D::Viewer3D()
 {
+	model = new Model();
 }
 
 Viewer3D::~Viewer3D()
 {
+	delete model;
 }
 
 bool Viewer3D::Startup()
@@ -32,8 +34,8 @@ bool Viewer3D::Startup()
 	instance = this;
 	glfwSetCursorPosCallback(window, &Application::SetMousePosition);
 
-	shader.loadShader(aie::eShaderStage::VERTEX, "./bin/Shaders/normal.vert");
-	shader.loadShader(aie::eShaderStage::FRAGMENT, "./bin/Shaders/normal.frag");
+	shader.loadShader(aie::eShaderStage::VERTEX, "./bin/Shaders/phong.vert");
+	shader.loadShader(aie::eShaderStage::FRAGMENT, "./bin/Shaders/phong.frag");
 
 	if (shader.link() == false)
 	{
@@ -41,10 +43,10 @@ bool Viewer3D::Startup()
 		return false;
 	}
 
-	model.LoadModel("./Working/soulspear.obj");
-	model.LoadMaterials("./Working/soulspear.mtl");
+	model->LoadModel("./Working/soulspear.obj");
+	model->LoadMaterials("./Working/soulspear.mtl");
 
-	//model.LoadModel("../Working/Swoop Model.fbx");
+	//model->LoadModel("./Working/Person.fbx");
 
 	//mesh.InitialiseFromFile("../Working/soulspear.obj");
 	//mesh.LoadMaterial("../Working/soulspear.mtl");
@@ -61,7 +63,7 @@ bool Viewer3D::Startup()
 	ambientLight = { 0.25f, 0.25f, 0.25f };
 
 	scene = new Scene(&camera, glm::vec2(GetWindowWidth(), GetWindowHeight()), &light, ambientLight);
-	scene->AddInstance(new Instance(glm::vec3(0, 0, 0), glm::vec3(0, 0, 0), glm::vec3(1, 1, 1), &model, &shader));
+	scene->AddInstance(new Instance(modelPos, modelRotation, modelScale, model, &shader));
 	
 	scene->AddLight(Light(glm::vec3(5, 3, 0), glm::vec3(1, 1, 1), 100));
 	scene->AddLight(Light(glm::vec3(-5, 3, 0), glm::vec3(0, 1, 0), 100));
@@ -184,23 +186,26 @@ void Viewer3D::Draw()
 				{
 					std::string path = outPath.get();
 					std::cout << path << '\n';
-					model.ResetModel();
-					model.LoadModel(path.c_str());
+					model->ResetModel();
+					model->LoadModel(path.c_str());
 					nfdresult_t result = NFD::OpenDialog(outPath, filterMaterial, 1);
 					if( result == NFD_OKAY )
 					{
 						path = outPath.get();
-						unsigned int index = path.find_first_of('\\');
-						std::string temp;
-						do
+						if( path.find(".obj") )
 						{
-							temp = path.substr(index + 1, path.end() - path.begin());
-							path.replace(path.begin() + index, path.end(), "/");
-							path += temp;
-							index = path.find_first_of('\\');
-						} while( index != -1 );
-						std::cout << path << '\n';
-						model.LoadMaterials(path.c_str());
+							unsigned int index = path.find_first_of('\\');
+							std::string temp;
+							do
+							{
+								temp = path.substr(index + 1, path.end() - path.begin());
+								path.replace(path.begin() + index, path.end(), "/");
+								path += temp;
+								index = path.find_first_of('\\');
+							} while( index != -1 );
+							std::cout << path << '\n';
+							model->LoadMaterials(path.c_str());
+						}
 					}
 					else if( result == NFD_CANCEL ) std::cout << "Canceled\n";
 					else std::cout << "ERROR\n";
@@ -253,6 +258,9 @@ void Viewer3D::Draw()
 	ImGui::Checkbox("##DebugDraw", &scene->GetPointLights()[selected].debug);
 	ImGui::EndChild();
 	ImGui::SeparatorText("Model Details");
-	ImGui::Text("Mesh Count: %i", model.GetMeshes().size());
+	ImGui::Text("Mesh Count: %i", model->GetMeshes().size());
+	ImGui::Text("Position");
+	ImGui::SameLine();
+	ImGui::DragFloat3("##Position", &scene->GetInstances().front()->GetTransform()[3][0], 0.1f, -100.0f, 100.0f);
 	ImGui::End();
 }

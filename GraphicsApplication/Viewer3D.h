@@ -27,9 +27,12 @@ protected:
 
 	Scene* scene;
 
-	Model model;
+	Model* model;
 
-	Mesh mesh;
+	//Mesh mesh;
+	glm::vec3 modelPos = { 0.0f, 0.0f, 0.0f };
+	glm::vec3 modelRotation = { 0.0f, 0.0f, 0.0f };
+	glm::vec3 modelScale = { 1.0f, 1.0f, 1.0f };
 
 	glm::vec3 ambientLight;
 };

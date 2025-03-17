@@ -69,3 +69,35 @@ glm::mat4 Instance::MakeTransform(glm::vec3 position, glm::vec3 eulerAngles, glm
 		* glm::rotate(glm::mat4(1), glm::radians(eulerAngles.x), glm::vec3(1, 0, 0))
 		* glm::scale(glm::mat4(1), scale);
 }
+
+void Instance::SetPosition(glm::vec3 position)
+{
+	transform = glm::translate(transform, position);
+}
+
+void Instance::SetRotation(glm::vec3 rotation)
+{
+	glm::vec4 temp = { rotation, 0.0f };
+	transform += transform * temp;
+}
+
+void Instance::SetScale(glm::vec3 scale)
+{
+	transform = glm::scale(transform, scale);
+}
+
+//glm::vec3 Instance::GetPosition()
+//{
+//
+//
+//}
+
+//glm::vec3 Instance::GetRotation()
+//{
+//	// TODO: insert return statement here
+//}
+//
+//glm::vec3 Instance::GetScale()
+//{
+//	// TODO: insert return statement here
+//}
