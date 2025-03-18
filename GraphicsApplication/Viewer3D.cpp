@@ -92,6 +92,8 @@ void Viewer3D::Draw()
 	ImGui_ImplGlfw_NewFrame();
 	ImGui::NewFrame();
 
+
+	ImGui::ShowDemoWindow();
 	//static ImGuiDockNodeFlags dockspace_flags = ImGuiDockNodeFlags_None;
 
 	//ImGuiWindowFlags window_flags = ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoDocking;
