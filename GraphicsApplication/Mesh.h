@@ -32,6 +32,7 @@ public:
 	void InitialiseFromFile(const char* filename);
 	void Initialise(unsigned int vertexCount, const Vertex* vertices, unsigned int indexCount = 0, unsigned int* indices = nullptr);
 	void InitialiseQuad();
+	void InitilaiseCube();
 
 	void Clear();
 

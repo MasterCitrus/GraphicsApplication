@@ -8,7 +8,7 @@ Light::Light(glm::vec3 position, glm::vec3 colour, float intesity) : direction(p
 
 }
 
-void Light::Draw()
+void Light::Draw() const
 {
 	if (debug)
 	{

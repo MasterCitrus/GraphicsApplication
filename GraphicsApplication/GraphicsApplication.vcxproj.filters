@@ -120,6 +120,12 @@
     <ClCompile Include="Viewer3D.cpp">
       <Filter>Source Files\Application\3D Viewer</Filter>
     </ClCompile>
+    <ClCompile Include="Cubemap.cpp">
+      <Filter>Source Files\Engine</Filter>
+    </ClCompile>
+    <ClCompile Include="Skybox.cpp">
+      <Filter>Source Files\Engine</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Application.h">
@@ -191,6 +197,12 @@
     <ClInclude Include="..\dep\include\imgui\imstb_textedit.h">
       <Filter>Header Files\Third Party\ImGui</Filter>
     </ClInclude>
+    <ClInclude Include="Cubemap.h">
+      <Filter>Header Files\Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="Skybox.h">
+      <Filter>Header Files\Engine</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="simple.vert">
@@ -205,10 +217,10 @@
     <None Include="..\bin\Shaders\phong.vert">
       <Filter>Shaders</Filter>
     </None>
-    <None Include="..\bin\Shaders\normal.frag">
+    <None Include="..\bin\Shaders\skybox.frag">
       <Filter>Shaders</Filter>
     </None>
-    <None Include="..\bin\Shaders\normal.vert">
+    <None Include="..\bin\Shaders\skybox.vert">
       <Filter>Shaders</Filter>
     </None>
   </ItemGroup>

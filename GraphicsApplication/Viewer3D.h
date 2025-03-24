@@ -7,6 +7,7 @@
 #include "Light.h"
 #include "Instance.h"
 #include <glm/mat4x4.hpp>
+#include "Skybox.h"
 
 using aie::ShaderProgram;
 
@@ -24,15 +25,11 @@ public:
 protected:
 	ShaderProgram shader;
 	ShaderProgram normalShader;
+	ShaderProgram skyboxShader;
 
 	Scene* scene;
 
-	Model* model;
-
-	//Mesh mesh;
-	glm::vec3 modelPos = { 0.0f, 0.0f, 0.0f };
-	glm::vec3 modelRotation = { 0.0f, 0.0f, 0.0f };
-	glm::vec3 modelScale = { 1.0f, 1.0f, 1.0f };
+	Skybox* skybox;
 
 	glm::vec3 ambientLight;
 };

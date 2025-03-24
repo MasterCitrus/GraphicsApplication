@@ -96,9 +96,10 @@ void Application::Run(const char* title, int width, int height, bool fullscreen)
 	DestroyWindow();
 }
 
-void Application::ClearScreen()
+void Application::ClearScreen(glm::vec3 colour)
 {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	glClearColor(colour.x, colour.y, colour.z, 1.0f);
 }
 
 void Application::SetBackgroundColour(float r, float g, float b, float a)

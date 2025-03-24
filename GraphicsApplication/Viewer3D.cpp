@@ -3,6 +3,7 @@
 #include "Camera.h"
 #include "Gizmos.h"
 #include "Scene.h"
+#include "Object.h"
 #include <glm/glm.hpp>
 #include <glm/ext.hpp>
 #include <iostream>
@@ -17,12 +18,10 @@ using aie::Gizmos;
 
 Viewer3D::Viewer3D()
 {
-	model = new Model();
 }
 
 Viewer3D::~Viewer3D()
 {
-	delete model;
 }
 
 bool Viewer3D::Startup()
@@ -37,25 +36,36 @@ bool Viewer3D::Startup()
 	shader.loadShader(aie::eShaderStage::VERTEX, "./bin/Shaders/phong.vert");
 	shader.loadShader(aie::eShaderStage::FRAGMENT, "./bin/Shaders/phong.frag");
 
+	skyboxShader.loadShader(aie::eShaderStage::VERTEX, "./bin/Shaders/skybox.vert");
+	skyboxShader.loadShader(aie::eShaderStage::FRAGMENT, "./bin/Shaders/skybox.frag");
+
 	if (shader.link() == false)
 	{
 		std::cout << "Shader Error: " << shader.getLastError() << '\n';
 		return false;
 	}
 
-	model->LoadModel("./Working/soulspear.obj");
-	model->LoadMaterials("./Working/soulspear.mtl");
+	if( skyboxShader.link() == false )
+	{
+		std::cout << "Skybox Shader Error: " << skyboxShader.getLastError() << '\n';
+		return false;
+	}
+
+	//model->LoadModel("./Working/soulspear.obj");
+	//model->LoadMaterials("./Working/soulspear.mtl");
 
 	//model->LoadModel("./Working/Person.fbx");
 
 	//mesh.InitialiseFromFile("../Working/soulspear.obj");
 	//mesh.LoadMaterial("../Working/soulspear.mtl");
-	glm::mat4 meshTransform = {
-		1.f, 0.f, 0.f, 0.f,
-		0.f, 1.f, 0.f, 0.f,
-		0.f, 0.f, 1.f, 0.f,
-		0.f, 0.f, 0.f, 1.f
-	};
+	//glm::mat4 meshTransform = {
+	//	1.f, 0.f, 0.f, 0.f,
+	//	0.f, 1.f, 0.f, 0.f,
+	//	0.f, 0.f, 1.f, 0.f,
+	//	0.f, 0.f, 0.f, 1.f
+	//};
+
+	skybox = new Skybox("./Working/Skyboxes/Ocean", &skyboxShader, &camera);
 
 	Light light;
 	light.colour = { 1, 1, 1 };
@@ -63,11 +73,11 @@ bool Viewer3D::Startup()
 	ambientLight = { 0.25f, 0.25f, 0.25f };
 
 	scene = new Scene(&camera, glm::vec2(GetWindowWidth(), GetWindowHeight()), &light, ambientLight);
-	scene->AddInstance(new Instance(modelPos, modelRotation, modelScale, model, &shader));
+	//scene->AddInstance(new Instance(modelPos, modelRotation, modelScale, model, &shader));
 	
-	scene->AddLight(Light(glm::vec3(5, 3, 0), glm::vec3(1, 1, 1), 100));
-	scene->AddLight(Light(glm::vec3(-5, 3, 0), glm::vec3(0, 1, 0), 100));
-	scene->AddLight(Light(glm::vec3(0, 5, 0), glm::vec3(0, 0, 1), 100));
+	scene->AddLight(new Light(glm::vec3(5, 3, 0), glm::vec3(1, 1, 1), 100));
+	scene->AddLight(new Light(glm::vec3(-5, 3, 0), glm::vec3(0, 1, 0), 100));
+	scene->AddLight(new Light(glm::vec3(0, 5, 0), glm::vec3(0, 0, 1), 100));
 
 
 	return true;
@@ -86,56 +96,7 @@ void Viewer3D::Update(float delta)
 
 void Viewer3D::Draw()
 {
-	ClearScreen();
-
-	ImGui_ImplOpenGL3_NewFrame();
-	ImGui_ImplGlfw_NewFrame();
-	ImGui::NewFrame();
-
-
-	ImGui::ShowDemoWindow();
-	//static ImGuiDockNodeFlags dockspace_flags = ImGuiDockNodeFlags_None;
-
-	//ImGuiWindowFlags window_flags = ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoDocking;
-
-	//if( fullscreen )
-	//{
-	//	const ImGuiViewport* viewport = ImGui::GetMainViewport();
-
-	//	ImGui::SetNextWindowPos(viewport->WorkPos);
-	//	ImGui::SetNextWindowSize(viewport->WorkSize);
-	//	ImGui::SetNextWindowViewport(viewport->ID);
-
-	//	ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
-	//	ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
-
-	//	window_flags |= ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove;
-	//	window_flags |= ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus;
-	//}
-	//else
-	//{
-	//	dockspace_flags &= ImGuiDockNodeFlags_PassthruCentralNode;
-	//}
-
-	//if( dockspace_flags & ImGuiDockNodeFlags_PassthruCentralNode ) window_flags |= ImGuiWindowFlags_NoBackground;
-
-	//ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
-
-	glm::mat4 pv = camera.GetProjectionMatrix((float)GetWindowWidth(), (float)GetWindowHeight()) * camera.GetViewMatrix();
-
-
-	//shader.bind();
-
-	//shader.bindUniform("AmbientColour", ambientLight);
-	//shader.bindUniform("LightColour", light.colour);
-	//shader.bindUniform("LightDirection", light.direction);
-
-	//shader.bindUniform("cameraPosition", camera.GetPosition());
-
-	//auto pvm = pv * meshTransform;
-	//shader.bindUniform("ProjectionViewModel", pvm);
-
-	//shader.bindUniform("ModelMatrix", meshTransform);
+	ClearScreen(glm::vec3(0.2f, 0.2f, 0.2f));
 
 	Gizmos::clear();
 
@@ -144,34 +105,30 @@ void Viewer3D::Draw()
 	glm::vec4 white(1);
 	glm::vec4 black(0, 0, 0, 1);
 
-	for (int i = 0; i < 21; ++i)
+	for( int i = 0; i < 21; ++i )
 	{
 		Gizmos::addLine(glm::vec3(-10 + i, 0, 10),
-						glm::vec3(-10 + i, 0, -10),
-						i == 10 ? white : black);
+			glm::vec3(-10 + i, 0, -10),
+			i == 10 ? white : black);
 		Gizmos::addLine(glm::vec3(10, 0, -10 + i),
-						glm::vec3(-10, 0, -10 + i),
-						i == 10 ? white : black);
+			glm::vec3(-10, 0, -10 + i),
+			i == 10 ? white : black);
 	}
 
-	//mesh.ApplyMaterial(&shader);
-	//mesh.Draw();
 	scene->Draw();
-	//spearInstance->Draw(&camera, GetWindowWidth(), GetWindowHeight(), ambientLight, &light);
+
+	glm::mat4 pv = camera.GetProjectionMatrix((float)GetWindowWidth(), (float)GetWindowHeight()) * camera.GetViewMatrix();
 
 	Gizmos::draw(pv);
 
-	//ImGui::PopStyleVar();
-	//if(fullscreen) ImGui::PopStyleVar(2);
+	skybox->Draw();
 
-	//ImGuiIO& io = ImGui::GetIO();
+	ImGui_ImplOpenGL3_NewFrame();
+	ImGui_ImplGlfw_NewFrame();
+	ImGui::NewFrame();
 
-	//if( io.ConfigFlags & ImGuiConfigFlags_DockingEnable )
-	//{
-	//	ImGuiID dockspace_id = ImGui::GetID("MyDockSpace");
-	//	ImGui::DockSpaceOverViewport(dockspace_id, ImGui::GetMainViewport(), dockspace_flags);
-	//}
-	
+	ImGui::DockSpaceOverViewport(0, ImGui::GetMainViewport(), ImGuiDockNodeFlags_PassthruCentralNode);
+
 	if( ImGui::BeginMainMenuBar() )
 	{
 		if( ImGui::BeginMenu("File") )
@@ -188,29 +145,21 @@ void Viewer3D::Draw()
 				{
 					std::string path = outPath.get();
 					std::cout << path << '\n';
-					model->ResetModel();
-					model->LoadModel(path.c_str());
-					nfdresult_t result = NFD::OpenDialog(outPath, filterMaterial, 1);
-					if( result == NFD_OKAY )
+
+					Model* model = new Model(path.c_str());
+					
+					if( path.find(".obj") )
 					{
-						path = outPath.get();
-						if( path.find(".obj") )
+						nfdresult_t result = NFD::OpenDialog(outPath, filterMaterial, 1);
+						if( result == NFD_OKAY )
 						{
-							unsigned int index = path.find_first_of('\\');
-							std::string temp;
-							do
-							{
-								temp = path.substr(index + 1, path.end() - path.begin());
-								path.replace(path.begin() + index, path.end(), "/");
-								path += temp;
-								index = path.find_first_of('\\');
-							} while( index != -1 );
-							std::cout << path << '\n';
+							path = outPath.get();
 							model->LoadMaterials(path.c_str());
 						}
 					}
 					else if( result == NFD_CANCEL ) std::cout << "Canceled\n";
 					else std::cout << "ERROR\n";
+					scene->AddObject(new Object(model, &shader));
 				}
 				else if( result == NFD_CANCEL ) std::cout << "Canceled\n";
 				else std::cout << "ERROR\n";
@@ -231,38 +180,100 @@ void Viewer3D::Draw()
 	ImGui::Text("Sunlight Intensity");
 	ImGui::SameLine();
 	ImGui::SliderFloat("##SunlightIntensity", &scene->GetLight().intensity, 0.0f, 100.0f);
+	ImGui::SeparatorText("Add Lights");
+	static glm::vec3 lightPosition = { 0.0f, 0.0f, 0.0f };
+	ImGui::Text("Light Position ");
+	ImGui::SameLine();
+	ImGui::InputFloat3("##NewLightPosition", &lightPosition[0]);
+	static glm::vec3 lightColour = { 1.0f, 1.0f, 1.0f };
+	ImGui::Text("Light Colour   ");
+	ImGui::SameLine();
+	ImGui::ColorEdit3("##NewLightColour", &lightColour[0]);
+	static float lightIntensity = 0.0f;
+	ImGui::Text("Light Intensity");
+	ImGui::SameLine();
+	ImGui::SliderFloat("##NewLightIntensity", &lightIntensity, 0.0f, 100.f);
+	if( ImGui::Button("Add Point Light") )
+	{
+		Light* light = new Light(lightPosition, lightColour, lightIntensity);
+		scene->AddLight(light);
+	}
+		
 	ImGui::SeparatorText("Point Lights");
 	ImGui::BeginChild("LightList", ImVec2(70, 200), true);
-	static int selected = 0;
+	static int selectedLight = 0;
 	for (int i = 0; i < scene->GetPointLights().size(); i++)
 	{
 		char label[128];
 		sprintf(label, "Light %d", i);
-		if (ImGui::Selectable(label, selected == i, 0))
+		if (ImGui::Selectable(label, selectedLight == i, 0))
 		{
-			selected = i;
+			selectedLight = i;
 		}
 	}
 	ImGui::EndChild();
 	ImGui::SameLine();
 	ImGui::BeginChild("LightDetails", ImVec2(0, 200), true);
-	ImGui::Text("Light Position ");
-	ImGui::SameLine();
-	ImGui::DragFloat3("##LightPosition", &scene->GetPointLights()[selected].direction[0], 0.1f, -100.0f, 100.0f);
-	ImGui::Text("Light Colour   ");
-	ImGui::SameLine();
-	ImGui::ColorEdit3("##LightColour", &scene->GetPointLights()[selected].colour[0]);
-	ImGui::Text("Light Intensity");
-	ImGui::SameLine();
-	ImGui::SliderFloat("##LightIntensity", &scene->GetPointLights()[selected].intensity, 0.0f, 100.f);
-	ImGui::Text("Debug Draw");
-	ImGui::SameLine();
-	ImGui::Checkbox("##DebugDraw", &scene->GetPointLights()[selected].debug);
+	if(!scene->GetPointLights().empty() )
+	{
+		ImGui::Text("Light Position ");
+		ImGui::SameLine();
+		ImGui::DragFloat3("##LightPosition", &scene->GetPointLights()[selectedLight]->direction[0], 0.1f, -100.0f, 100.0f);
+		ImGui::Text("Light Colour   ");
+		ImGui::SameLine();
+		ImGui::ColorEdit3("##LightColour", &scene->GetPointLights()[selectedLight]->colour[0]);
+		ImGui::Text("Light Intensity");
+		ImGui::SameLine();
+		ImGui::SliderFloat("##LightIntensity", &scene->GetPointLights()[selectedLight]->intensity, 0.0f, 100.f);
+		ImGui::Text("Debug Draw");
+		ImGui::SameLine();
+		ImGui::Checkbox("##DebugDraw", &scene->GetPointLights()[selectedLight]->debug);
+		if( ImGui::Button("Delete Light") )
+		{
+			auto it = scene->GetPointLights().begin() + selectedLight;
+			scene->GetPointLights().erase(it);
+			if( selectedLight > 0 ) selectedLight--;
+			else selectedLight = 0;
+		}
+	}
 	ImGui::EndChild();
-	ImGui::SeparatorText("Model Details");
-	ImGui::Text("Mesh Count: %i", model->GetMeshes().size());
-	ImGui::Text("Position");
+
+	ImGui::SeparatorText("Objects");
+	static int selectedObject = 0;
+	ImGui::BeginChild("Model List", ImVec2(70, 200), true);
+	for( int i = 0; i < scene->GetObjects().size(); i++ )
+	{
+		char label[128];
+		sprintf(label, "Object %d", i);
+		if( ImGui::Selectable(label, selectedObject == i, 0) )
+		{
+			selectedObject = i;
+		}
+	}
+	ImGui::EndChild();
 	ImGui::SameLine();
-	ImGui::DragFloat3("##Position", &scene->GetInstances().front()->GetTransform()[3][0], 0.1f, -100.0f, 100.0f);
+	ImGui::BeginChild("Object Details", ImVec2(0, 200), true);
+	if( !scene->GetObjects().empty() )
+	{
+		ImGui::Text("Mesh Count: %i", scene->GetObjects()[selectedObject]->GetModel()->GetMeshes().size());
+		ImGui::Text("Position");
+		ImGui::SameLine();
+		ImGui::DragFloat3("##Position", &scene->GetObjects()[selectedObject]->GetTransform().GetPosition()[0], 0.1f);
+		ImGui::Text("Rotation");
+		ImGui::SameLine();
+		ImGui::DragFloat3("##Rotation", &scene->GetObjects()[selectedObject]->GetTransform().GetRotation()[0], 0.1f);
+		ImGui::Text("Scale");
+		ImGui::SameLine();
+		ImGui::DragFloat("##Scale   ", &scene->GetObjects()[selectedObject]->GetTransform().GetScaleValue(), 0.1f);
+		if( ImGui::Button("Delete Object") )
+		{
+			auto it = scene->GetObjects().begin() + selectedObject;
+			scene->GetObjects().erase(it);
+			if( selectedObject > 0 ) selectedObject--;
+			else selectedObject = 0;
+		}
+	}
+	ImGui::EndChild();
 	ImGui::End();
+	
 }

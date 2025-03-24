@@ -5,8 +5,9 @@ struct Light
 {
 	Light() = default;
 	Light(glm::vec3 position, glm::vec3 colour, float intesity);
+	~Light() = default;
 
-	void Draw();
+	void Draw() const;
 
 	glm::vec3 direction;
 	glm::vec3 colour;

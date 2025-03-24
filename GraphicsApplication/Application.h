@@ -17,7 +17,7 @@ public:
 	virtual void Update(float delta) = 0;
 	virtual void Draw() = 0;
 
-	void ClearScreen();
+	void ClearScreen(glm::vec3 colour);
 	void SetBackgroundColour(float r, float g, float b, float a = 1.0f);
 	void SetShowCursor(bool visible);
 	void SetVSync(bool enabled);

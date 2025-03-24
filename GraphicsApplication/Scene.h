@@ -8,6 +8,7 @@
 
 class Camera;
 class Instance;
+class Object;
 
 const int MAX_LIGHTS = 4;
 
@@ -15,7 +16,8 @@ class Scene
 {
 protected:
 
-	std::vector<Light> pointLights;
+	std::vector<Light*> pointLights;
+	std::vector<Object*> objects;
 	std::list<Instance*> instances;
 	Light sunLight;
 	Camera* camera;
@@ -31,7 +33,8 @@ public:
 	void Draw();
 	void Update(float delta);
 	void AddInstance(Instance* instance);
-	void AddLight(Light light);
+	void AddObject(Object* object);
+	void AddLight(Light* light);
 
 	Camera* GetCamera() { return camera; }
 	Light& GetLight() { return sunLight; }
@@ -44,6 +47,9 @@ public:
 	glm::vec3* GetLightPositions() { return pointLightPositions; }
 	glm::vec3* GetLightColours() { return pointLightColours; }
 
-	std::vector<Light>& GetPointLights() { return pointLights; }
+	std::vector<Light> GetNearestLights(Object* object);
+
+	std::vector<Light*>& GetPointLights() { return pointLights; }
 	std::list<Instance*> GetInstances() { return instances; }
+	std::vector<Object*>& GetObjects() { return objects; }
 };

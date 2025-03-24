@@ -85,19 +85,3 @@ void Instance::SetScale(glm::vec3 scale)
 {
 	transform = glm::scale(transform, scale);
 }
-
-//glm::vec3 Instance::GetPosition()
-//{
-//
-//
-//}
-
-//glm::vec3 Instance::GetRotation()
-//{
-//	// TODO: insert return statement here
-//}
-//
-//glm::vec3 Instance::GetScale()
-//{
-//	// TODO: insert return statement here
-//}
