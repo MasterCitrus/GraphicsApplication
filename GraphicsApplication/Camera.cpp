@@ -26,8 +26,8 @@ glm::mat4 Camera::GetProjectionMatrix(float w, float h)
 
 void Camera::Update(float delta, GLFWwindow* window)
 {
-	if (phi > 70.0f) phi = 70.0f;
-	else if (phi < -70.0f) phi = -70.0f;
+	if (phi > 89.9f) phi = 89.9f;
+	else if (phi < -89.9f) phi = -89.9f;
 
 	float thetaR = glm::radians(theta);
 	float phiR = glm::radians(phi);

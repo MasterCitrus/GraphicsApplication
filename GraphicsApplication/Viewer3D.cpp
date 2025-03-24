@@ -65,7 +65,7 @@ bool Viewer3D::Startup()
 	//	0.f, 0.f, 0.f, 1.f
 	//};
 
-	skybox = new Skybox("./Working/Skyboxes/Ocean", &skyboxShader, &camera);
+	skybox = new Skybox("./Working/Skyboxes/SmallNebulaSpace", &skyboxShader, &camera);
 
 	Light light;
 	light.colour = { 1, 1, 1 };
