@@ -24,7 +24,7 @@ void Object::Draw(Scene* scene)
 {
 	shader->bind();
 
-	auto pvm = scene->GetCamera()->GetProjectionMatrix(scene->GetWindowSize().x, scene->GetWindowSize().y) * scene->GetCamera()->GetViewMatrix() * transform.GetLocalMatrix();
+	auto pvm = scene->GetCamera()->GetProjectionMatrix() * scene->GetCamera()->GetViewMatrix() * transform.GetLocalMatrix();
 
 	shader->bindUniform("ProjectionViewModel", pvm);
 

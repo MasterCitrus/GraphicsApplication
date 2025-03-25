@@ -87,7 +87,7 @@ void Skybox::Draw()
 
     shader->bind();
 
-    shader->bindUniform("projection", camera->GetProjectionMatrix(app->GetWindowWidth(), app->GetWindowHeight()));
+    shader->bindUniform("projection", camera->GetProjectionMatrix());
     shader->bindUniform("view", glm::mat4(glm::mat3(camera->GetViewMatrix())));
 
 	glBindVertexArray(vao);
@@ -96,4 +96,12 @@ void Skybox::Draw()
 	glDrawArrays(GL_TRIANGLES, 0, 36);
 
     glDepthFunc(GL_LESS);
+}
+
+void Skybox::SetCubemap(std::string& path)
+{
+	delete skyboxTexture;
+	skyboxTexture = nullptr;
+
+	skyboxTexture = new Cubemap(path);
 }

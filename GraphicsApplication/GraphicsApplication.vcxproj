@@ -162,6 +162,7 @@
     <ClCompile Include="..\dep\include\imgui\imgui_widgets.cpp" />
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="Cubemap.cpp" />
+    <ClCompile Include="Framebuffer.cpp" />
     <ClCompile Include="Instance.cpp" />
     <ClCompile Include="Light.cpp" />
     <ClCompile Include="Material.cpp" />
@@ -191,6 +192,7 @@
     <ClInclude Include="..\dep\include\imgui\imstb_truetype.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="Cubemap.h" />
+    <ClInclude Include="Framebuffer.h" />
     <ClInclude Include="Instance.h" />
     <ClInclude Include="Light.h" />
     <ClInclude Include="Material.h" />

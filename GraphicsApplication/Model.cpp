@@ -120,5 +120,7 @@ Mesh* Model::ProcessMesh(aiMesh* mesh, const aiScene* scene)
 
 	Mesh* outMesh = new Mesh(vertices, indices.data(), indices.size(), numVertices);
 
+	delete[] vertices;
+
 	return outMesh;
 }

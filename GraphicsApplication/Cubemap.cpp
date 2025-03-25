@@ -20,9 +20,36 @@ Cubemap::Cubemap(const std::string& path)
 	if( !Load() ) std::cout << "Failed to load images\n";
 }
 
+Cubemap::Cubemap(Cubemap&& cubemap)
+{
+	
+	cubemapID = cubemap.cubemapID;
+	filenames = cubemap.filenames;
+
+	cubemap.cubemapID = 0;
+	filenames = std::vector<std::string>();
+}
+
 Cubemap::~Cubemap()
 {
+	if( cubemapID != 0 )
+	{
+		glDeleteTextures(1, &cubemapID);
+	}
+}
 
+Cubemap& Cubemap::operator=(Cubemap&& cubemap) noexcept
+{
+	if( cubemapID != cubemap.cubemapID )
+	{
+		cubemapID = cubemap.cubemapID;
+		filenames = cubemap.filenames;
+
+		cubemap.cubemapID = 0;
+		filenames = std::vector<std::string>();
+	}
+
+	return *this;
 }
 
 bool Cubemap::Load()

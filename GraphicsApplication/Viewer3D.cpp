@@ -13,6 +13,7 @@
 #include <GLFW/glfw3.h>
 #include <string>
 #include <nfd/nfd.hpp>
+#include <thread>
 
 using aie::Gizmos;
 
@@ -26,9 +27,13 @@ Viewer3D::~Viewer3D()
 
 bool Viewer3D::Startup()
 {
+	camera = new Camera(45.0, (float)GetWindowWidth() / (float)GetWindowHeight(), 0.1f, 1000.0f);
+
 	SetBackgroundColour(.25f, .25f, .25f);
 
 	Gizmos::create(10000, 10000, 0, 0);
+
+	framebuffer = new Framebuffer(GetWindowWidth(), GetWindowHeight());
 
 	instance = this;
 	glfwSetCursorPosCallback(window, &Application::SetMousePosition);
@@ -65,14 +70,15 @@ bool Viewer3D::Startup()
 	//	0.f, 0.f, 0.f, 1.f
 	//};
 
-	skybox = new Skybox("./Working/Skyboxes/SmallNebulaSpace", &skyboxShader, &camera);
+	skybox = new Skybox("./Working/Skyboxes/SmallNebulaSpace", &skyboxShader, camera);
+	skyboxName = "SmallNebulaSpace";
 
 	Light light;
 	light.colour = { 1, 1, 1 };
 	light.direction = { 1, 1, -1 };
 	ambientLight = { 0.25f, 0.25f, 0.25f };
 
-	scene = new Scene(&camera, glm::vec2(GetWindowWidth(), GetWindowHeight()), &light, ambientLight);
+	scene = new Scene(camera, glm::vec2(GetWindowWidth(), GetWindowHeight()), &light, ambientLight);
 	//scene->AddInstance(new Instance(modelPos, modelRotation, modelScale, model, &shader));
 	
 	scene->AddLight(new Light(glm::vec3(5, 3, 0), glm::vec3(1, 1, 1), 100));
@@ -87,6 +93,7 @@ void Viewer3D::Shutdown()
 {
 	Gizmos::destroy();
 	delete scene;
+	delete skybox;
 }
 
 void Viewer3D::Update(float delta)
@@ -98,31 +105,6 @@ void Viewer3D::Draw()
 {
 	ClearScreen(glm::vec3(0.2f, 0.2f, 0.2f));
 
-	Gizmos::clear();
-
-	Gizmos::addTransform(glm::mat4(1), 1.0f);
-
-	glm::vec4 white(1);
-	glm::vec4 black(0, 0, 0, 1);
-
-	for( int i = 0; i < 21; ++i )
-	{
-		Gizmos::addLine(glm::vec3(-10 + i, 0, 10),
-			glm::vec3(-10 + i, 0, -10),
-			i == 10 ? white : black);
-		Gizmos::addLine(glm::vec3(10, 0, -10 + i),
-			glm::vec3(-10, 0, -10 + i),
-			i == 10 ? white : black);
-	}
-
-	scene->Draw();
-
-	glm::mat4 pv = camera.GetProjectionMatrix((float)GetWindowWidth(), (float)GetWindowHeight()) * camera.GetViewMatrix();
-
-	Gizmos::draw(pv);
-
-	skybox->Draw();
-
 	ImGui_ImplOpenGL3_NewFrame();
 	ImGui_ImplGlfw_NewFrame();
 	ImGui::NewFrame();
@@ -133,36 +115,9 @@ void Viewer3D::Draw()
 	{
 		if( ImGui::BeginMenu("File") )
 		{
-			if( ImGui::MenuItem("Import Model", nullptr) )
+			if( ImGui::MenuItem("Load Model", nullptr) )
 			{
-				NFD::Guard nfdGuard;
-				NFD::UniquePath outPath;
-				nfdfilteritem_t filterModel[1] = { "Wavefront", "obj" };
-				nfdfilteritem_t filterMaterial[1] = { "Material", "mtl" };
-
-				nfdresult_t result = NFD::OpenDialog(outPath, filterModel, 1);
-				if( result == NFD_OKAY )
-				{
-					std::string path = outPath.get();
-					std::cout << path << '\n';
-
-					Model* model = new Model(path.c_str());
-					
-					if( path.find(".obj") )
-					{
-						nfdresult_t result = NFD::OpenDialog(outPath, filterMaterial, 1);
-						if( result == NFD_OKAY )
-						{
-							path = outPath.get();
-							model->LoadMaterials(path.c_str());
-						}
-					}
-					else if( result == NFD_CANCEL ) std::cout << "Canceled\n";
-					else std::cout << "ERROR\n";
-					scene->AddObject(new Object(model, &shader));
-				}
-				else if( result == NFD_CANCEL ) std::cout << "Canceled\n";
-				else std::cout << "ERROR\n";
+				LoadModel();
 			}
 			ImGui::EndMenu();
 		}
@@ -198,15 +153,15 @@ void Viewer3D::Draw()
 		Light* light = new Light(lightPosition, lightColour, lightIntensity);
 		scene->AddLight(light);
 	}
-		
+
 	ImGui::SeparatorText("Point Lights");
 	ImGui::BeginChild("LightList", ImVec2(70, 200), true);
 	static int selectedLight = 0;
-	for (int i = 0; i < scene->GetPointLights().size(); i++)
+	for( int i = 0; i < scene->GetPointLights().size(); i++ )
 	{
 		char label[128];
 		sprintf(label, "Light %d", i);
-		if (ImGui::Selectable(label, selectedLight == i, 0))
+		if( ImGui::Selectable(label, selectedLight == i, 0) )
 		{
 			selectedLight = i;
 		}
@@ -214,7 +169,7 @@ void Viewer3D::Draw()
 	ImGui::EndChild();
 	ImGui::SameLine();
 	ImGui::BeginChild("LightDetails", ImVec2(0, 200), true);
-	if(!scene->GetPointLights().empty() )
+	if( !scene->GetPointLights().empty() )
 	{
 		ImGui::Text("Light Position ");
 		ImGui::SameLine();
@@ -275,5 +230,105 @@ void Viewer3D::Draw()
 	}
 	ImGui::EndChild();
 	ImGui::End();
-	
+
+	ImGui::Begin("World Settings");
+	ImGui::Text("Current Skybox: %s", skyboxName.c_str());
+	if( ImGui::Button("Change Skybox") )
+	{
+		NFD::Guard nfdGuard;
+		NFD::UniquePath outPath;
+
+		nfdresult_t result = NFD::PickFolder(outPath);
+		if( result == NFD_OKAY )
+		{
+			std::string path = outPath.get();
+			skybox->SetCubemap(path);
+			int index = path.find_last_of("/\\");
+			skyboxName = path.substr(index + 1);
+		}
+		else if( result == NFD_CANCEL ) {}
+		else std::cout << "Error: " << NFD::GetError() << '\n';
+	}
+	ImGui::End();
+
+	ImGui::Begin("Viewport");
+	//ImGui::GetWindowDrawList()->AddImage(
+	//	framebuffer->GetColourAttachment(),
+	//	ImVec2(ImGui::GetCursorScreenPos()),
+	//	ImVec2(ImGui::GetWindowPos().x + ImGui::GetWindowSize().x, ImGui::GetWindowPos().y + ImGui::GetWindowSize().y),
+	//	ImVec2(0, 1),
+	//	ImVec2(1, 0)
+	//);
+	ImVec2 viewport = ImGui::GetCursorScreenPos();
+	ImGui::Image(framebuffer->GetColourAttachment(), ImVec2(viewport.x + ImGui::GetContentRegionAvail().x, viewport.y + ImGui::GetContentRegionAvail().y), ImVec2(0, 1), ImVec2(1, 0));
+
+	ImGui::End();
+	if( FramebufferSpec spec = framebuffer->GetSpec(); GetWindowWidth() > 0.0f && GetWindowHeight() > 0.0f && ( spec.width != GetWindowWidth() || spec.height != GetWindowHeight() ) )
+	{
+		framebuffer->Resize(GetWindowWidth(), GetWindowHeight());
+		camera->SetViewportSize((float)GetWindowWidth(), (float)GetWindowHeight());
+	}
+
+	framebuffer->Bind();
+	//glEnable(GL_DEPTH_TEST);
+	ClearScreen(glm::vec3(0.2f, 0.2f, 0.2f));
+	Gizmos::clear();
+
+	Gizmos::addTransform(glm::mat4(1), 1.0f);
+
+	glm::vec4 white(1);
+	glm::vec4 black(0.3, 0.3, 0.3, 1);
+
+	for( int i = 0; i < 21; ++i )
+	{
+		Gizmos::addLine(glm::vec3(-10 + i, 0, 10),
+			glm::vec3(-10 + i, 0, -10),
+			i == 10 ? white : black);
+		Gizmos::addLine(glm::vec3(10, 0, -10 + i),
+			glm::vec3(-10, 0, -10 + i),
+			i == 10 ? white : black);
+	}
+
+	scene->Draw();
+
+	glm::mat4 pv = camera->GetProjectionMatrix() * camera->GetViewMatrix();
+
+	Gizmos::draw(pv);
+
+	skybox->Draw();
+
+	framebuffer->Unbind();
+
+}
+
+void Viewer3D::LoadModel()
+{
+	NFD::Guard nfdGuard;
+	NFD::UniquePath outPath;
+	nfdfilteritem_t filterModel[2] = { { "Wavefront", "obj" }, {"FBX", "fbx"} };
+	nfdfilteritem_t filterMaterial[1] = { "Material", "mtl" };
+
+	nfdresult_t result = NFD::OpenDialog(outPath, filterModel, 2);
+	if( result == NFD_OKAY )
+	{
+		std::string path = outPath.get();
+		std::cout << path << '\n';
+
+		Model* model = new Model(path.c_str());
+
+		if( path.find(".obj") != -1 )
+		{
+			nfdresult_t result = NFD::OpenDialog(outPath, filterMaterial, 1);
+			if( result == NFD_OKAY )
+			{
+				path = outPath.get();
+				model->LoadMaterials(path.c_str());
+			}
+		}
+		else if( result == NFD_CANCEL ) std::cout << "Model Material Load Canceled\n";
+		else std::cout << "Error: " << NFD::GetError() << '\n';
+		scene->AddObject(new Object(model, &shader));
+	}
+	else if( result == NFD_CANCEL ) std::cout << "Model Load Canceled\n";
+	else std::cout << "Error: " << NFD::GetError() << '\n';
 }

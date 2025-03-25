@@ -37,6 +37,8 @@ public:
 
 	bool& GetFullscreen() { return fullscreen; }
 
+	Camera* GetCamera() { return camera; }
+
 	static Application* Get() { return instance; }
 	static void SetMousePosition(GLFWwindow* window, double x, double y);
 
@@ -44,7 +46,7 @@ protected:
 	virtual bool CreateWindow(const char* title, int width, int height, bool fullscreen);
 	virtual void DestroyWindow();
 
-	Camera camera;
+	Camera* camera;
 
 	glm::vec2 mousePos;
 	glm::vec2 lastMousePos;

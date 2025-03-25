@@ -4,63 +4,68 @@
 #include <glm/ext.hpp>
 #include <GLFW/glfw3.h>
 
-Camera::Camera()
+Camera::Camera(float fov, float aspectRatio, float nearClip, float farClip)
+	: fov(fov), aspectRatio(aspectRatio), nearClip(nearClip), farClip(farClip), projection(glm::perspective(glm::radians(fov), aspectRatio, nearClip, farClip))
 {
-	theta = -90.0f;
-	phi = -10.0f;
-	position = { 0, 2, 10 };
+	UpdateView();
 }
 
-glm::mat4 Camera::GetViewMatrix()
+glm::quat Camera::GetOrientation() const
 {
-	float thetaR = glm::radians(theta);
-	float phiR = glm::radians(phi);
-	glm::vec3 forward(cos(phiR) * cos(thetaR), sin(phiR), cos(phiR) * sin(thetaR));
-	return glm::lookAt(position, position + forward, glm::vec3(0, 1, 0));
+	return glm::quat(glm::vec3(-pitch, -yaw, 0.0f));
 }
 
-glm::mat4 Camera::GetProjectionMatrix(float w, float h)
+glm::vec3 Camera::GetUpVector() const
 {
-	return glm::perspective(glm::pi<float>() * 0.25f, w / h, 0.1f, 1000.f);
+	return glm::rotate(GetOrientation(), glm::vec3(0.0f, 1.0f, 0.0f));
+}
+
+glm::vec3 Camera::GetRightVector() const
+{
+	return glm::rotate(GetOrientation(), glm::vec3(1.0f, 0.0f, 0.0f));
+}
+
+glm::vec3 Camera::GetForwardVector() const
+{
+	return glm::rotate(GetOrientation(), glm::vec3(0.0f, 0.0f, -1.0f));
+}
+
+void Camera::SetViewportSize(float width, float height)
+{
+	this->width = width;
+	this->height = height;
+
+	UpdateProjection();
 }
 
 void Camera::Update(float delta, GLFWwindow* window)
 {
-	if (phi > 89.9f) phi = 89.9f;
-	else if (phi < -89.9f) phi = -89.9f;
-
-	float thetaR = glm::radians(theta);
-	float phiR = glm::radians(phi);
-
-	glm::vec3 forward(cos(phiR) * cos(thetaR), sin(phiR), cos(phiR) * sin(thetaR));
-	glm::vec3 right(-sin(thetaR), 0, cos(thetaR));
-	glm::vec3 up(0, 1, 0);
 
 	glm::vec2 mouseDelta = Application::Get()->GetMouseDelta();
 
 	if (glfwGetKey(window, GLFW_KEY_R))
 	{
-		position += up * cameraSpeed * delta;
+		position += GetUpVector() * cameraSpeed * delta;
 	}
 	if (glfwGetKey(window, GLFW_KEY_F))
 	{
-		position += -up * cameraSpeed * delta;
+		position += -GetUpVector() * cameraSpeed * delta;
 	}
 	if (glfwGetKey(window, GLFW_KEY_W))
 	{
-		position += forward * cameraSpeed * delta;
+		position += GetForwardVector() * cameraSpeed * delta;
 	}
 	if (glfwGetKey(window, GLFW_KEY_S))
 	{
-		position += -forward * cameraSpeed * delta;
+		position += -GetForwardVector() * cameraSpeed * delta;
 	}
 	if (glfwGetKey(window, GLFW_KEY_A))
 	{
-		position += -right * cameraSpeed * delta;
+		position += -GetRightVector() * cameraSpeed * delta;
 	}
 	if (glfwGetKey(window, GLFW_KEY_D))
 	{
-		position += right * cameraSpeed * delta;
+		position += GetRightVector() * cameraSpeed * delta;
 	}
 	if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
 	{
@@ -72,7 +77,20 @@ void Camera::Update(float delta, GLFWwindow* window)
 	}
 	if (glfwGetMouseButton(window, 1))
 	{
-		theta += turnSpeed * mouseDelta.x;
-		phi -= turnSpeed * mouseDelta.y;
+		yaw += turnSpeed * mouseDelta.x;
+		pitch += turnSpeed * mouseDelta.y;
 	}
+}
+
+void Camera::UpdateProjection()
+{
+	aspectRatio = width / height;
+	projection = glm::perspective(glm::radians(fov), aspectRatio, nearClip, farClip);
+}
+
+void Camera::UpdateView()
+{
+	glm::quat orientation = GetOrientation();
+	view = glm::translate(glm::mat4(1.0f), position) * glm::toMat4(orientation);
+	view = glm::inverse(view);
 }

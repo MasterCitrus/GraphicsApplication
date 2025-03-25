@@ -24,7 +24,7 @@ void Instance::Draw(Camera* camera, float windowWidth, float windowHeight, glm::
 {
 	shader->bind();
 
-	auto pvm = camera->GetProjectionMatrix(windowWidth, windowHeight) * camera->GetViewMatrix() * transform;
+	auto pvm = camera->GetProjectionMatrix() * camera->GetViewMatrix() * transform;
 
 	shader->bindUniform("ProjectionViewModel", pvm);
 
@@ -42,7 +42,7 @@ void Instance::Draw(Scene* scene)
 {
 	shader->bind();
 
-	auto pvm = scene->GetCamera()->GetProjectionMatrix(scene->GetWindowSize().x, scene->GetWindowSize().y) * scene->GetCamera()->GetViewMatrix() * transform;
+	auto pvm = scene->GetCamera()->GetProjectionMatrix() * scene->GetCamera()->GetViewMatrix() * transform;
 
 	shader->bindUniform("ProjectionViewModel", pvm);
 

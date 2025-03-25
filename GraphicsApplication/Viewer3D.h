@@ -6,8 +6,10 @@
 #include "Shader.h"
 #include "Light.h"
 #include "Instance.h"
-#include <glm/mat4x4.hpp>
 #include "Skybox.h"
+#include "Framebuffer.h"
+#include <glm/mat4x4.hpp>
+#include <string>
 
 using aie::ShaderProgram;
 
@@ -22,6 +24,8 @@ public:
 	virtual void Update(float delta);
 	virtual void Draw();
 
+	void LoadModel();
+
 protected:
 	ShaderProgram shader;
 	ShaderProgram normalShader;
@@ -29,7 +33,10 @@ protected:
 
 	Scene* scene;
 
+	Framebuffer* framebuffer;
+
 	Skybox* skybox;
+	std::string skyboxName;
 
 	glm::vec3 ambientLight;
 };

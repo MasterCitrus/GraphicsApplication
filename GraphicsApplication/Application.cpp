@@ -62,7 +62,7 @@ void Application::Run(const char* title, int width, int height, bool fullscreen)
 
 			Update((float)deltaTime);
 
-			camera.Update((float)deltaTime, window);
+			camera->Update((float)deltaTime, window);
 
 			Draw();
 
@@ -178,7 +178,10 @@ bool Application::CreateWindow(const char* title, int width, int height, bool fu
 
 	std::cout << "GL: " << GLVersion.major << "." << GLVersion.minor << '\n';
 
-	glfwSetWindowSizeCallback(window, [](GLFWwindow*, int w, int h) { glViewport(0, 0, w, h); });
+	glfwSetWindowSizeCallback(window, [](GLFWwindow*, int w, int h) 
+		{ 
+			glViewport(0, 0, w, h);
+		});
 
 	glClearColor(0, 0, 0, 1);
 	glEnable(GL_DEPTH_TEST);

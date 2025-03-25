@@ -15,6 +15,9 @@ public:
 	~Skybox();
 
 	void Draw();
+
+	void SetCubemap(std::string& path);
+
 private:
 	Cubemap* skyboxTexture;
 	aie::ShaderProgram* shader;
