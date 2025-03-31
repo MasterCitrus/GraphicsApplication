@@ -20,7 +20,7 @@ Cubemap::Cubemap(const std::string& path)
 	if( !Load() ) std::cout << "Failed to load images\n";
 }
 
-Cubemap::Cubemap(Cubemap&& cubemap)
+Cubemap::Cubemap(Cubemap&& cubemap) noexcept
 {
 	
 	cubemapID = cubemap.cubemapID;

@@ -8,7 +8,7 @@ class Cubemap
 public:
 	Cubemap(const std::string& path);
 	Cubemap(Cubemap& cubemap) = delete;
-	Cubemap(Cubemap&& cubemap);
+	Cubemap(Cubemap&& cubemap) noexcept;
 	~Cubemap();
 
 	Cubemap& operator=(Cubemap& cubemap) = delete;
