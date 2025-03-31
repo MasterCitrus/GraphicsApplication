@@ -23,6 +23,8 @@ public:
 	glm::vec3 GetRightVector() const;
 	glm::vec3 GetForwardVector() const;
 
+	float GetAspectRatio() const { return aspectRatio; }
+
 	void SetViewportSize(float width, float height);
 	void Update(float delta, GLFWwindow* window);
 
@@ -30,12 +32,23 @@ private:
 	void UpdateProjection();
 	void UpdateView();
 
+	void Pan(const glm::vec2& delta);
+	void Rotate(const glm::vec2& delta);
+	void Zoom(float delta);
+
+	std::pair<float, float> PanSpeed() const;
+	float ZoomSpeed() const;
+
+	glm::vec3 CalculatePosition() const;
+
 private:
 	glm::mat4 projection = glm::mat4(1);
 	glm::mat4 view;
 
+	glm::vec3 focalPoint = { 0.0f, 0.0f, 0.0f };
 	glm::vec3 position = { 0.0f, 2.0f, 10.0f };
-	float pitch = 0.0f, yaw = 0.0f;
+	float pitch = glm::radians( 30.0f ), yaw = 0.0f;
+	float distance = 10.0f;
 
 	float fov = 45.0f;
 	float aspectRatio = 1.778f;

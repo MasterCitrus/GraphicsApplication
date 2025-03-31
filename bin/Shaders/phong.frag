@@ -67,7 +67,7 @@ void main()
 		float distance = length(direction);
 		direction = direction / distance;
 
-		vec3 colour = PointLightColour[i] / (distance * distance);
+		vec3 colour = PointLightColour[i] * (1.0 / (distance * distance));
 
 		diffuseTotal += GetDiffuse(direction, colour, N);
 		specularTotal += GetSpecular(direction, colour, N, V);

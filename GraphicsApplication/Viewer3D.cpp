@@ -229,9 +229,9 @@ void Viewer3D::Draw()
 		ImGui::Text("Rotation");
 		ImGui::SameLine();
 		ImGui::DragFloat3("##Rotation", &scene->GetObjects()[selectedObject]->GetTransform().GetRotation()[0], 0.1f);
-		ImGui::Text("Scale");
+		ImGui::Text("Scale   ");
 		ImGui::SameLine();
-		ImGui::DragFloat("##Scale     ", &scene->GetObjects()[selectedObject]->GetTransform().GetScaleValue(), 0.1f);
+		ImGui::DragFloat("##Scale", &scene->GetObjects()[selectedObject]->GetTransform().GetScaleValue(), 0.1f);
 		if( ImGui::Button("Delete Object") )
 		{
 			auto it = scene->GetObjects().begin() + selectedObject;
@@ -258,7 +258,7 @@ void Viewer3D::Draw()
 
 	if( FramebufferSpec spec = framebuffer->GetSpec(); availableViewport.x > 0.0f && availableViewport.y > 0.0f && ( spec.width != availableViewport.x || spec.height != availableViewport.y ) )
 	{
-		framebuffer->Resize(GetWindowWidth(), GetWindowHeight());
+		framebuffer->Resize(availableViewport.x, availableViewport.y);
 		camera->SetViewportSize(availableViewport.x, availableViewport.y);
 	}
 
@@ -278,6 +278,7 @@ void Viewer3D::Draw()
 	ImGui::Text("Viewport Size: %i, %i", (unsigned int)availableViewport.x, (unsigned int)availableViewport.y);
 	ImGui::Text("Framebuffer Size: %i, %i", framebuffer->GetSpec().width, framebuffer->GetSpec().height);
 	ImGui::Text("Window Size: %i, %i", GetWindowWidth(), GetWindowHeight());
+	ImGui::Text("Aspect Ratio: %f", camera->GetAspectRatio());
 	ImGui::End();
 
 	framebuffer->Bind();

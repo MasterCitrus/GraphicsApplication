@@ -209,6 +209,8 @@
     <ClInclude Include="Gizmos.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\bin\Shaders\pbr.frag" />
+    <None Include="..\bin\Shaders\pbr.vert" />
     <None Include="..\bin\Shaders\phong.frag" />
     <None Include="..\bin\Shaders\phong.vert" />
     <None Include="..\bin\Shaders\skybox.frag" />
