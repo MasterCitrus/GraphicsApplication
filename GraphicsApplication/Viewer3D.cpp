@@ -111,6 +111,10 @@ void Viewer3D::Draw()
 
 	ImGui::DockSpaceOverViewport(0, ImGui::GetMainViewport(), ImGuiDockNodeFlags_PassthruCentralNode);
 
+	//ImGui::ShowDemoWindow();
+
+	static bool vsync = true;
+
 	if( ImGui::BeginMainMenuBar() )
 	{
 		if( ImGui::BeginMenu("File") )
@@ -118,6 +122,14 @@ void Viewer3D::Draw()
 			if( ImGui::MenuItem("Load Model", nullptr) )
 			{
 				LoadModel();
+			}
+			ImGui::EndMenu();
+		}
+		if( ImGui::BeginMenu("Options") )
+		{
+			if( ImGui::Checkbox("Toggle VSync", &vsync) )
+			{
+				SetVSync(vsync);
 			}
 			ImGui::EndMenu();
 		}
@@ -219,7 +231,7 @@ void Viewer3D::Draw()
 		ImGui::DragFloat3("##Rotation", &scene->GetObjects()[selectedObject]->GetTransform().GetRotation()[0], 0.1f);
 		ImGui::Text("Scale");
 		ImGui::SameLine();
-		ImGui::DragFloat("##Scale   ", &scene->GetObjects()[selectedObject]->GetTransform().GetScaleValue(), 0.1f);
+		ImGui::DragFloat("##Scale     ", &scene->GetObjects()[selectedObject]->GetTransform().GetScaleValue(), 0.1f);
 		if( ImGui::Button("Delete Object") )
 		{
 			auto it = scene->GetObjects().begin() + selectedObject;
@@ -235,42 +247,41 @@ void Viewer3D::Draw()
 	ImGui::Text("Current Skybox: %s", skyboxName.c_str());
 	if( ImGui::Button("Change Skybox") )
 	{
-		NFD::Guard nfdGuard;
-		NFD::UniquePath outPath;
-
-		nfdresult_t result = NFD::PickFolder(outPath);
-		if( result == NFD_OKAY )
-		{
-			std::string path = outPath.get();
-			skybox->SetCubemap(path);
-			int index = path.find_last_of("/\\");
-			skyboxName = path.substr(index + 1);
-		}
-		else if( result == NFD_CANCEL ) {}
-		else std::cout << "Error: " << NFD::GetError() << '\n';
+		LoadPath();
 	}
 	ImGui::End();
 
 	ImGui::Begin("Viewport");
+	ImVec2 viewport = ImGui::GetCursorScreenPos();
+	ImVec2 availableViewport = ImGui::GetContentRegionAvail();
+	ImVec2 windowSize = ImGui::GetWindowSize();
+
+	if( FramebufferSpec spec = framebuffer->GetSpec(); availableViewport.x > 0.0f && availableViewport.y > 0.0f && ( spec.width != availableViewport.x || spec.height != availableViewport.y ) )
+	{
+		framebuffer->Resize(GetWindowWidth(), GetWindowHeight());
+		camera->SetViewportSize(availableViewport.x, availableViewport.y);
+	}
+
 	//ImGui::GetWindowDrawList()->AddImage(
 	//	framebuffer->GetColourAttachment(),
-	//	ImVec2(ImGui::GetCursorScreenPos()),
-	//	ImVec2(ImGui::GetWindowPos().x + ImGui::GetWindowSize().x, ImGui::GetWindowPos().y + ImGui::GetWindowSize().y),
+	//	viewport,
+	//	ImVec2(viewport.x + windowSize.x, viewport.y + windowSize.y),
 	//	ImVec2(0, 1),
 	//	ImVec2(1, 0)
 	//);
-	ImVec2 viewport = ImGui::GetCursorScreenPos();
-	ImGui::Image(framebuffer->GetColourAttachment(), ImVec2(viewport.x + ImGui::GetContentRegionAvail().x, viewport.y + ImGui::GetContentRegionAvail().y), ImVec2(0, 1), ImVec2(1, 0));
+	ImGui::Image(framebuffer->GetColourAttachment(), ImVec2(availableViewport.x, availableViewport.y), ImVec2(0, 1), ImVec2(1, 0));
 
 	ImGui::End();
-	if( FramebufferSpec spec = framebuffer->GetSpec(); GetWindowWidth() > 0.0f && GetWindowHeight() > 0.0f && ( spec.width != GetWindowWidth() || spec.height != GetWindowHeight() ) )
-	{
-		framebuffer->Resize(GetWindowWidth(), GetWindowHeight());
-		camera->SetViewportSize((float)GetWindowWidth(), (float)GetWindowHeight());
-	}
+
+	ImGui::Begin("App Stats");
+	ImGui::Text("FPS: %i", fps);
+	ImGui::Text("Viewport Size: %i, %i", (unsigned int)availableViewport.x, (unsigned int)availableViewport.y);
+	ImGui::Text("Framebuffer Size: %i, %i", framebuffer->GetSpec().width, framebuffer->GetSpec().height);
+	ImGui::Text("Window Size: %i, %i", GetWindowWidth(), GetWindowHeight());
+	ImGui::End();
 
 	framebuffer->Bind();
-	//glEnable(GL_DEPTH_TEST);
+	glEnable(GL_DEPTH_TEST);
 	ClearScreen(glm::vec3(0.2f, 0.2f, 0.2f));
 	Gizmos::clear();
 
@@ -298,6 +309,8 @@ void Viewer3D::Draw()
 	skybox->Draw();
 
 	framebuffer->Unbind();
+
+	//glViewport(0, 0, GetWindowWidth(), GetWindowHeight());
 
 }
 
@@ -330,5 +343,22 @@ void Viewer3D::LoadModel()
 		scene->AddObject(new Object(model, &shader));
 	}
 	else if( result == NFD_CANCEL ) std::cout << "Model Load Canceled\n";
+	else std::cout << "Error: " << NFD::GetError() << '\n';
+}
+
+void Viewer3D::LoadPath()
+{
+	NFD::Guard nfdGuard;
+	NFD::UniquePath outPath;
+
+	nfdresult_t result = NFD::PickFolder(outPath);
+	if( result == NFD_OKAY )
+	{
+		std::string path = outPath.get();
+		skybox->SetCubemap(path);
+		int index = path.find_last_of("/\\");
+		skyboxName = path.substr(index + 1);
+	}
+	else if( result == NFD_CANCEL ) {}
 	else std::cout << "Error: " << NFD::GetError() << '\n';
 }

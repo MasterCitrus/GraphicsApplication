@@ -77,9 +77,11 @@ void Camera::Update(float delta, GLFWwindow* window)
 	}
 	if (glfwGetMouseButton(window, 1))
 	{
-		yaw += turnSpeed * mouseDelta.x;
-		pitch += turnSpeed * mouseDelta.y;
+		yaw += turnSpeed * mouseDelta.x * delta;
+		pitch += turnSpeed * mouseDelta.y * delta;
 	}
+
+	UpdateView();
 }
 
 void Camera::UpdateProjection()

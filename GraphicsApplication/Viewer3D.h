@@ -25,6 +25,7 @@ public:
 	virtual void Draw();
 
 	void LoadModel();
+	void LoadPath();
 
 protected:
 	ShaderProgram shader;
