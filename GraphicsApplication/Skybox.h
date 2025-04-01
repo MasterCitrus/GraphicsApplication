@@ -11,7 +11,7 @@ class Skybox
 {
 public:
 	Skybox() = default;
-	Skybox(const std::string& path, aie::ShaderProgram* shader, Camera* camera);
+	Skybox(std::string& path, aie::ShaderProgram* shader, Camera* camera);
 	~Skybox();
 
 	void Draw();

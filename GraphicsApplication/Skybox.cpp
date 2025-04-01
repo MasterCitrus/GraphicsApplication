@@ -7,7 +7,7 @@
 
 #include <glad/glad.h>
 
-Skybox::Skybox(const std::string& path, aie::ShaderProgram* shader, Camera* camera)
+Skybox::Skybox(std::string& path, aie::ShaderProgram* shader, Camera* camera)
 {
     this->shader = shader;
     this->camera = camera;

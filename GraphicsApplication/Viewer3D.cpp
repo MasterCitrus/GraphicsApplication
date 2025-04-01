@@ -29,14 +29,13 @@ bool Viewer3D::Startup()
 {
 	camera = new Camera(45.0, (float)GetWindowWidth() / (float)GetWindowHeight(), 0.1f, 1000.0f);
 
-	//SetBackgroundColour(.25f, .25f, .25f);
+	SetBackgroundColour(.25f, .25f, .25f);
 
 	Gizmos::create(10000, 10000, 0, 0);
 
 	framebuffer = new Framebuffer(GetWindowWidth(), GetWindowHeight());
 
 	instance = this;
-	//glfwSetCursorPosCallback(window, &Application::SetMousePosition);
 
 	shader.loadShader(aie::eShaderStage::VERTEX, "./bin/Shaders/phong.vert");
 	shader.loadShader(aie::eShaderStage::FRAGMENT, "./bin/Shaders/phong.frag");
@@ -56,22 +55,8 @@ bool Viewer3D::Startup()
 		return false;
 	}
 
-	//model->LoadModel("./Working/soulspear.obj");
-	//model->LoadMaterials("./Working/soulspear.mtl");
-
-	//model->LoadModel("./Working/Person.fbx");
-
-	//mesh.InitialiseFromFile("../Working/soulspear.obj");
-	//mesh.LoadMaterial("../Working/soulspear.mtl");
-	//glm::mat4 meshTransform = {
-	//	1.f, 0.f, 0.f, 0.f,
-	//	0.f, 1.f, 0.f, 0.f,
-	//	0.f, 0.f, 1.f, 0.f,
-	//	0.f, 0.f, 0.f, 1.f
-	//};
-
-	skybox = new Skybox("./Working/Skyboxes/SmallNebulaSpace", &skyboxShader, camera);
-	skyboxName = "SmallNebulaSpace";
+	//skybox = new Skybox("./Working/Skyboxes/SmallNebulaSpace", &skyboxShader, camera);
+	//skyboxName = "SmallNebulaSpace";
 
 	Light light;
 	light.colour = { 1, 1, 1 };
@@ -79,7 +64,6 @@ bool Viewer3D::Startup()
 	ambientLight = { 0.25f, 0.25f, 0.25f };
 
 	scene = new Scene(camera, glm::vec2(GetWindowWidth(), GetWindowHeight()), &light, ambientLight);
-	//scene->AddInstance(new Instance(modelPos, modelRotation, modelScale, model, &shader));
 	
 	scene->AddLight(new Light(glm::vec3(5, 3, 0), glm::vec3(1, 0, 0), 100));
 	scene->AddLight(new Light(glm::vec3(-5, 3, 0), glm::vec3(0, 1, 0), 100));
@@ -93,7 +77,7 @@ void Viewer3D::Shutdown()
 {
 	Gizmos::destroy();
 	delete scene;
-	delete skybox;
+	if(skybox ) delete skybox;
 }
 
 void Viewer3D::Update(float delta)
@@ -105,13 +89,44 @@ void Viewer3D::Draw()
 {
 	ClearScreen(glm::vec3(0.2f, 0.2f, 0.2f));
 
+	framebuffer->Bind();
+	glEnable(GL_DEPTH_TEST);
+	ClearScreen(glm::vec3(0.2f, 0.2f, 0.2f));
+	Gizmos::clear();
+
+	Gizmos::addTransform(glm::mat4(1), 1.0f);
+
+	glm::vec4 white(1);
+	glm::vec4 black(0.3, 0.3, 0.3, 1);
+
+	for( int i = 0; i < 21; ++i )
+	{
+		Gizmos::addLine(glm::vec3(-10 + i, 0, 10),
+			glm::vec3(-10 + i, 0, -10),
+			i == 10 ? white : black);
+		Gizmos::addLine(glm::vec3(10, 0, -10 + i),
+			glm::vec3(-10, 0, -10 + i),
+			i == 10 ? white : black);
+	}
+
+	scene->Draw();
+
+	glm::mat4 pv = camera->GetProjectionMatrix() * camera->GetViewMatrix();
+
+	Gizmos::draw(pv);
+
+	skybox->Draw();
+
+	framebuffer->Unbind();
+}
+
+void Viewer3D::ImGuiDraw()
+{
 	ImGui_ImplOpenGL3_NewFrame();
 	ImGui_ImplGlfw_NewFrame();
 	ImGui::NewFrame();
 
 	ImGui::DockSpaceOverViewport(0, ImGui::GetMainViewport(), ImGuiDockNodeFlags_PassthruCentralNode);
-
-	//ImGui::ShowDemoWindow();
 
 	static bool vsync = true;
 
@@ -122,6 +137,10 @@ void Viewer3D::Draw()
 			if( ImGui::MenuItem("Load Model", nullptr) )
 			{
 				LoadModel();
+			}
+			if( ImGui::MenuItem("Exit") )
+			{
+				Quit();
 			}
 			ImGui::EndMenu();
 		}
@@ -249,7 +268,16 @@ void Viewer3D::Draw()
 	ImGui::Text("Current Skybox: %s", skyboxName.c_str());
 	if( ImGui::Button("Change Skybox") )
 	{
-		LoadPath();
+		LoadSkybox();
+	}
+	ImGui::SameLine();
+	if( ImGui::Button("Remove Skybox") )
+	{
+		if( skybox )
+		{
+			delete skybox;
+			skybox = nullptr;
+		}
 	}
 	ImGui::End();
 
@@ -264,18 +292,11 @@ void Viewer3D::Draw()
 		camera->SetViewportSize(availableViewport.x, availableViewport.y);
 	}
 
-	//ImGui::GetWindowDrawList()->AddImage(
-	//	framebuffer->GetColourAttachment(),
-	//	viewport,
-	//	ImVec2(viewport.x + windowSize.x, viewport.y + windowSize.y),
-	//	ImVec2(0, 1),
-	//	ImVec2(1, 0)
-	//);
 	ImGui::Image(framebuffer->GetColourAttachment(), ImVec2(availableViewport.x, availableViewport.y), ImVec2(0, 1), ImVec2(1, 0));
 
 	ImGui::End();
 
-	if(showAppStats )
+	if( showAppStats )
 	{
 		ImGui::SetNextWindowBgAlpha(0.35f);
 		ImGui::Begin("App Stats", 0, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoNav | ImGuiWindowFlags_NoDocking);
@@ -286,39 +307,6 @@ void Viewer3D::Draw()
 		ImGui::Text("Aspect Ratio: %f", camera->GetAspectRatio());
 		ImGui::End();
 	}
-
-	framebuffer->Bind();
-	glEnable(GL_DEPTH_TEST);
-	ClearScreen(glm::vec3(0.2f, 0.2f, 0.2f));
-	Gizmos::clear();
-
-	Gizmos::addTransform(glm::mat4(1), 1.0f);
-
-	glm::vec4 white(1);
-	glm::vec4 black(0.3, 0.3, 0.3, 1);
-
-	for( int i = 0; i < 21; ++i )
-	{
-		Gizmos::addLine(glm::vec3(-10 + i, 0, 10),
-			glm::vec3(-10 + i, 0, -10),
-			i == 10 ? white : black);
-		Gizmos::addLine(glm::vec3(10, 0, -10 + i),
-			glm::vec3(-10, 0, -10 + i),
-			i == 10 ? white : black);
-	}
-
-	scene->Draw();
-
-	glm::mat4 pv = camera->GetProjectionMatrix() * camera->GetViewMatrix();
-
-	Gizmos::draw(pv);
-
-	skybox->Draw();
-
-	framebuffer->Unbind();
-
-	//glViewport(0, 0, GetWindowWidth(), GetWindowHeight());
-
 }
 
 void Viewer3D::OnEvent(Event& e)
@@ -353,16 +341,16 @@ void Viewer3D::LoadModel()
 				path = outPath.get();
 				model->LoadMaterials(path.c_str());
 			}
+			else if( result == NFD_CANCEL ) std::cout << "Model Material Load Canceled\n";
+			else std::cout << "Error: " << NFD::GetError() << '\n';
 		}
-		else if( result == NFD_CANCEL ) std::cout << "Model Material Load Canceled\n";
-		else std::cout << "Error: " << NFD::GetError() << '\n';
 		scene->AddObject(new Object(model, &shader));
 	}
 	else if( result == NFD_CANCEL ) std::cout << "Model Load Canceled\n";
 	else std::cout << "Error: " << NFD::GetError() << '\n';
 }
 
-void Viewer3D::LoadPath()
+void Viewer3D::LoadSkybox()
 {
 	NFD::Guard nfdGuard;
 	NFD::UniquePath outPath;
@@ -371,9 +359,19 @@ void Viewer3D::LoadPath()
 	if( result == NFD_OKAY )
 	{
 		std::string path = outPath.get();
-		skybox->SetCubemap(path);
-		int index = path.find_last_of("/\\");
-		skyboxName = path.substr(index + 1);
+		if( skybox )
+		{
+			skybox->SetCubemap(path);
+			int index = path.find_last_of("/\\");
+			skyboxName = path.substr(index + 1);
+		}
+		else
+		{
+			skybox = new Skybox(path, skyboxShader, camera);
+			int index = path.find_last_of("/\\");
+			skyboxName = path.substr(index + 1);
+		}
+		
 	}
 	else if( result == NFD_CANCEL ) {}
 	else std::cout << "Error: " << NFD::GetError() << '\n';

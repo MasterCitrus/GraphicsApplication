@@ -71,6 +71,8 @@ void Application::Run(const char* title, unsigned int width, unsigned int height
 
 			Draw();
 
+			ImGuiDraw();
+
 			if( showDemoWindow )
 			{
 				ImGui::ShowDemoWindow();

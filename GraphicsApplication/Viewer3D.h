@@ -19,15 +19,16 @@ public:
 	Viewer3D();
 	virtual ~Viewer3D();
 
-	virtual bool Startup();
-	virtual void Shutdown();
-	virtual void Update(float delta);
-	virtual void Draw();
+	bool Startup() override;
+	void Shutdown() override;
+	void Update(float delta) override;
+	void Draw() override;
+	void ImGuiDraw() override;
 
 	void OnEvent(Event& e) override;
 
 	void LoadModel();
-	void LoadPath();
+	void LoadSkybox();
 
 protected:
 	bool OnKeyPressed(KeyPressedEvent& e) override;

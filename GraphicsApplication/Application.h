@@ -19,6 +19,7 @@ public:
 	virtual void Shutdown() = 0;
 	virtual void Update(float delta) = 0;
 	virtual void Draw() = 0;
+	virtual void ImGuiDraw() {}
 
 	void ClearScreen(glm::vec3 colour);
 	void SetBackgroundColour(float r, float g, float b, float a = 1.0f);
