@@ -1,5 +1,8 @@
 #pragma once
 #include "Camera.h"
+#include "Events/Event.h"
+#include "Events/ApplicationEvent.h"
+#include "Window.h"
 #include <glm/vec2.hpp>
 
 struct GLFWwindow;
@@ -10,7 +13,7 @@ public:
 	Application();
 	virtual ~Application();
 
-	void Run(const char* title, int width, int height, bool fullscreen);
+	void Run(const char* title, unsigned int width, unsigned int height, bool fullscreen);
 
 	virtual bool Startup() = 0;
 	virtual void Shutdown() = 0;
@@ -19,40 +22,38 @@ public:
 
 	void ClearScreen(glm::vec3 colour);
 	void SetBackgroundColour(float r, float g, float b, float a = 1.0f);
-	void SetShowCursor(bool visible);
-	void SetVSync(bool enabled);
 	void Quit() { quit = true; }
 	bool HasWindowClosed();
 
+	virtual void OnEvent(Event& e);
 
-	GLFWwindow* GetWindowPtr() const { return window; }
+	Window& GetWindow() const { return *window; }
 	unsigned int GetFPS() const { return fps; }
 	unsigned int GetWindowWidth() const;
 	unsigned int GetWindowHeight() const;
 
 	float GetTime() const;
 
-	glm::vec2 GetMousePosition() { return mousePos; }
-	glm::vec2 GetMouseDelta() { return mousePos - lastMousePos; }
-
 	bool& GetFullscreen() { return fullscreen; }
 
 	Camera* GetCamera() { return camera; }
 
 	static Application* Get() { return instance; }
-	static void SetMousePosition(GLFWwindow* window, double x, double y);
 
 protected:
-	virtual bool CreateWindow(const char* title, int width, int height, bool fullscreen);
-	virtual void DestroyWindow();
+	virtual bool OnKeyPressed(KeyPressedEvent& e) { return false; }
+	virtual bool OnMouseButtonPressed(MouseButtonPressedEvent& e) { return false; }
 
+private:
+	bool OnWindowClose(WindowCloseEvent& e);
+
+protected:
 	Camera* camera;
 
-	glm::vec2 mousePos;
-	glm::vec2 lastMousePos;
 	static Application* instance;
-	GLFWwindow* window;
+	Window* window;
 	unsigned int fps;
 	bool quit;
 	bool fullscreen;
+	bool showDemoWindow = false;
 };

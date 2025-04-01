@@ -1,5 +1,6 @@
 #pragma once
 #include "Events/Event.h"
+#include "GraphicsContext.h"
 
 #include <string>
 #include <functional>
@@ -42,6 +43,7 @@ private:
 
 private:
 	GLFWwindow* window;
+	GraphicsContext* context;
 
 	struct WindowData
 	{

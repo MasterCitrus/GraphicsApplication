@@ -29,14 +29,14 @@ bool Viewer3D::Startup()
 {
 	camera = new Camera(45.0, (float)GetWindowWidth() / (float)GetWindowHeight(), 0.1f, 1000.0f);
 
-	SetBackgroundColour(.25f, .25f, .25f);
+	//SetBackgroundColour(.25f, .25f, .25f);
 
 	Gizmos::create(10000, 10000, 0, 0);
 
 	framebuffer = new Framebuffer(GetWindowWidth(), GetWindowHeight());
 
 	instance = this;
-	glfwSetCursorPosCallback(window, &Application::SetMousePosition);
+	//glfwSetCursorPosCallback(window, &Application::SetMousePosition);
 
 	shader.loadShader(aie::eShaderStage::VERTEX, "./bin/Shaders/phong.vert");
 	shader.loadShader(aie::eShaderStage::FRAGMENT, "./bin/Shaders/phong.frag");
@@ -81,7 +81,7 @@ bool Viewer3D::Startup()
 	scene = new Scene(camera, glm::vec2(GetWindowWidth(), GetWindowHeight()), &light, ambientLight);
 	//scene->AddInstance(new Instance(modelPos, modelRotation, modelScale, model, &shader));
 	
-	scene->AddLight(new Light(glm::vec3(5, 3, 0), glm::vec3(1, 1, 1), 100));
+	scene->AddLight(new Light(glm::vec3(5, 3, 0), glm::vec3(1, 0, 0), 100));
 	scene->AddLight(new Light(glm::vec3(-5, 3, 0), glm::vec3(0, 1, 0), 100));
 	scene->AddLight(new Light(glm::vec3(0, 5, 0), glm::vec3(0, 0, 1), 100));
 
@@ -129,8 +129,10 @@ void Viewer3D::Draw()
 		{
 			if( ImGui::Checkbox("Toggle VSync", &vsync) )
 			{
-				SetVSync(vsync);
+				window->SetVSync(vsync);
 			}
+			ImGui::Checkbox("Toggle ImGui Demo Window", &showDemoWindow);
+			ImGui::Checkbox("Toggle App Stats", &showAppStats);
 			ImGui::EndMenu();
 		}
 		ImGui::EndMainMenuBar();
@@ -273,13 +275,17 @@ void Viewer3D::Draw()
 
 	ImGui::End();
 
-	ImGui::Begin("App Stats");
-	ImGui::Text("FPS: %i", fps);
-	ImGui::Text("Viewport Size: %i, %i", (unsigned int)availableViewport.x, (unsigned int)availableViewport.y);
-	ImGui::Text("Framebuffer Size: %i, %i", framebuffer->GetSpec().width, framebuffer->GetSpec().height);
-	ImGui::Text("Window Size: %i, %i", GetWindowWidth(), GetWindowHeight());
-	ImGui::Text("Aspect Ratio: %f", camera->GetAspectRatio());
-	ImGui::End();
+	if(showAppStats )
+	{
+		ImGui::SetNextWindowBgAlpha(0.35f);
+		ImGui::Begin("App Stats", 0, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoNav | ImGuiWindowFlags_NoDocking);
+		ImGui::Text("FPS: %i", fps);
+		ImGui::Text("Viewport Size: %i, %i", (unsigned int)availableViewport.x, (unsigned int)availableViewport.y);
+		ImGui::Text("Framebuffer Size: %i, %i", framebuffer->GetSpec().width, framebuffer->GetSpec().height);
+		ImGui::Text("Window Size: %i, %i", GetWindowWidth(), GetWindowHeight());
+		ImGui::Text("Aspect Ratio: %f", camera->GetAspectRatio());
+		ImGui::End();
+	}
 
 	framebuffer->Bind();
 	glEnable(GL_DEPTH_TEST);
@@ -313,6 +319,15 @@ void Viewer3D::Draw()
 
 	//glViewport(0, 0, GetWindowWidth(), GetWindowHeight());
 
+}
+
+void Viewer3D::OnEvent(Event& e)
+{
+	Application::OnEvent(e);
+
+	EventDispatcher dispatcher(e);
+	dispatcher.Dispatch<KeyPressedEvent>(BIND_EVENT_FN( Viewer3D::OnKeyPressed ));
+	dispatcher.Dispatch<MouseButtonPressedEvent>(BIND_EVENT_FN( Viewer3D::OnMouseButtonPressed ));
 }
 
 void Viewer3D::LoadModel()
@@ -362,4 +377,20 @@ void Viewer3D::LoadPath()
 	}
 	else if( result == NFD_CANCEL ) {}
 	else std::cout << "Error: " << NFD::GetError() << '\n';
+}
+
+bool Viewer3D::OnKeyPressed(KeyPressedEvent& e)
+{
+	switch( e.GetKeyCode() )
+	{
+	case GLFW_KEY_R:
+		camera->SetFocus({ 0.0f, 0.0f, 0.0f });
+		break;
+	}
+	return false;
+}
+
+bool Viewer3D::OnMouseButtonPressed(MouseButtonPressedEvent& e)
+{
+	return false;
 }

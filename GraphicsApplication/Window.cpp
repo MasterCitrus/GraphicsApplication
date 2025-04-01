@@ -20,7 +20,7 @@ Window::~Window()
 void Window::Update()
 {
 	glfwPollEvents();
-	glfwSwapBuffers(window);
+	context->SwapBuffers();
 }
 
 void Window::SetVSync(bool enabled)
@@ -57,6 +57,9 @@ void Window::Init(const WindowProperties& properties)
 		std::cout << "Window failed to create.\n";
 		__debugbreak;
 	}
+
+	context = new GraphicsContext(window);
+	context->Init();
 
 	glfwSetWindowUserPointer(window, &windowData);
 	SetVSync(true);
@@ -155,4 +158,5 @@ void Window::Init(const WindowProperties& properties)
 void Window::Shutdown()
 {
 	glfwDestroyWindow(window);
+	delete context;
 }

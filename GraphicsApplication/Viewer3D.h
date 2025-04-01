@@ -24,8 +24,14 @@ public:
 	virtual void Update(float delta);
 	virtual void Draw();
 
+	void OnEvent(Event& e) override;
+
 	void LoadModel();
 	void LoadPath();
+
+protected:
+	bool OnKeyPressed(KeyPressedEvent& e) override;
+	bool OnMouseButtonPressed(MouseButtonPressedEvent& e) override;
 
 protected:
 	ShaderProgram shader;
@@ -40,4 +46,6 @@ protected:
 	std::string skyboxName;
 
 	glm::vec3 ambientLight;
+
+	bool showAppStats = false;
 };

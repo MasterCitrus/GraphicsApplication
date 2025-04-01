@@ -2,6 +2,8 @@
 #include <string>
 #include <sstream>
 
+#define BIND_EVENT_FN(fn) [this](auto&&... args) -> decltype(auto) { return this->fn(std::forward<decltype(args)>(args)...); }
+
 enum class EventType
 {
 	None = 0,

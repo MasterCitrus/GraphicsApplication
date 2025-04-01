@@ -1,5 +1,8 @@
 #include "Camera.h"
+#include "Input.h"
 #include "Application.h"
+#include "Key.h"
+#include "MouseButton.h"
 #include <glm/glm.hpp>
 #include <glm/ext.hpp>
 #include <GLFW/glfw3.h>
@@ -38,65 +41,60 @@ void Camera::SetViewportSize(float width, float height)
 	UpdateProjection();
 }
 
+void Camera::SetFocus(const glm::vec3& focalPoint)
+{
+	this->focalPoint = focalPoint;
+
+	UpdateView();
+}
+
 void Camera::Update(float delta, GLFWwindow* window)
 {
 
+	const glm::vec2& mouse = { Input::GetMouseX(), Input::GetMouseY() };
+	glm::vec2 mouseDelta = ( mouse - lastMousePos ) * 0.009f;
+	lastMousePos = mouse;
 
-	glm::vec2 mouseDelta = Application::Get()->GetMouseDelta() * 0.009f;
-
-	if( glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_MIDDLE) )
+	if( Input::IsMouseButtonPressed(Mouse::BUTTON_MIDDLE) )
 	{
 		Pan(mouseDelta);
 	}
-	else if( glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) && glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) )
+	else if( Input::IsMouseButtonPressed(Mouse::BUTTON_RIGHT) && Input::IsMouseButtonPressed(Mouse::BUTTON_LEFT)  )
 	{
 		Zoom(mouseDelta.y);
 	}
-	else if( glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) )
+	else if( Input::IsMouseButtonPressed(Mouse::BUTTON_RIGHT) )
 	{
 		Rotate(mouseDelta);
 	}
-	
-
-	//if (glfwGetKey(window, GLFW_KEY_R))
-	//{
-	//	position += GetUpVector() * cameraSpeed * delta;
-	//}
-	//if (glfwGetKey(window, GLFW_KEY_F))
-	//{
-	//	position += -GetUpVector() * cameraSpeed * delta;
-	//}
-	//if (glfwGetKey(window, GLFW_KEY_W))
-	//{
-	//	position += GetForwardVector() * cameraSpeed * delta;
-	//}
-	//if (glfwGetKey(window, GLFW_KEY_S))
-	//{
-	//	position += -GetForwardVector() * cameraSpeed * delta;
-	//}
-	//if (glfwGetKey(window, GLFW_KEY_A))
-	//{
-	//	position += -GetRightVector() * cameraSpeed * delta;
-	//}
-	//if (glfwGetKey(window, GLFW_KEY_D))
-	//{
-	//	position += GetRightVector() * cameraSpeed * delta;
-	//}
-	//if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
-	//{
-	//	cameraSpeed = 15.0f;
-	//}
-	//else
-	//{
-	//	cameraSpeed = 10.0f;
-	//}
-	//if (glfwGetMouseButton(window, 1))
-	//{
-	//	yaw += turnSpeed * mouseDelta.x * delta;
-	//	pitch += turnSpeed * mouseDelta.y * delta;
-	//}
 
 	UpdateView();
+}
+
+void Camera::OnEvent(Event& e)
+{
+	EventDispatcher dispatcher(e);
+	dispatcher.Dispatch<MouseScrolledEvent>(BIND_EVENT_FN(Camera::OnMouseScroll));
+	dispatcher.Dispatch<MouseButtonPressedEvent>(BIND_EVENT_FN(Camera::OnMouseButtonPressed));
+	dispatcher.Dispatch<KeyPressedEvent>(BIND_EVENT_FN(Camera::OnKeyPress));
+}
+
+bool Camera::OnMouseScroll(MouseScrolledEvent& e)
+{
+	float delta = e.GetYOffset() * 0.2f;
+	Zoom(delta);
+	UpdateView();
+	return false;
+}
+
+bool Camera::OnKeyPress(KeyPressedEvent& e)
+{
+	return false;
+}
+
+bool Camera::OnMouseButtonPressed(MouseButtonPressedEvent& e)
+{
+	return false;
 }
 
 void Camera::UpdateProjection()

@@ -1,4 +1,8 @@
 #pragma once
+#include "Events/Event.h"
+#include "Events/MouseEvent.h"
+#include "Events/KeyEvent.h"
+
 #include <glm/vec3.hpp>
 #include <glm/mat4x4.hpp>
 
@@ -26,7 +30,14 @@ public:
 	float GetAspectRatio() const { return aspectRatio; }
 
 	void SetViewportSize(float width, float height);
+	void SetFocus(const glm::vec3& focalPoint);
+
 	void Update(float delta, GLFWwindow* window);
+	void OnEvent(Event& e);
+
+	bool OnMouseScroll(MouseScrolledEvent& e);
+	bool OnKeyPress(KeyPressedEvent& e);
+	bool OnMouseButtonPressed(MouseButtonPressedEvent& e);
 
 private:
 	void UpdateProjection();
@@ -47,6 +58,9 @@ private:
 
 	glm::vec3 focalPoint = { 0.0f, 0.0f, 0.0f };
 	glm::vec3 position = { 0.0f, 2.0f, 10.0f };
+
+	glm::vec2 lastMousePos = { 0.0f, 0.0f };
+
 	float pitch = glm::radians( 30.0f ), yaw = 0.0f;
 	float distance = 10.0f;
 

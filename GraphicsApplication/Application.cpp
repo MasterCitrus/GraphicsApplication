@@ -8,6 +8,8 @@
 #include <glm/glm.hpp>
 #include <glm/ext.hpp>
 
+#define BIND_EVENT_FUNC(x) std::bind(&Application::x, this, std::placeholders::_1)
+
 Application* Application::instance = nullptr;
 
 Application::Application() : window(nullptr), quit(false), fps(0)
@@ -17,14 +19,17 @@ Application::Application() : window(nullptr), quit(false), fps(0)
 
 Application::~Application()
 {
-	
+	delete window;
 }
 
-void Application::Run(const char* title, int width, int height, bool fullscreen)
+void Application::Run(const char* title, unsigned int width, unsigned int height, bool fullscreen)
 {
-
-	if (CreateWindow(title, width, height, fullscreen) && Startup())
+	window = new Window({ title, width, height, fullscreen });
+	window->SetEventCallback(BIND_EVENT_FUNC(OnEvent));
+	if (window && Startup())
 	{
+		auto window = (GLFWwindow*)GetWindow().GetNativeWindow();
+
 		IMGUI_CHECKVERSION();
 		ImGui::CreateContext();
 		ImGuiIO& io = ImGui::GetIO(); (void)io;
@@ -53,7 +58,7 @@ void Application::Run(const char* title, int width, int height, bool fullscreen)
 
 			frames++;
 			fpsInterval += deltaTime;
-			if (fpsInterval >= 0.1f)
+			if (fpsInterval >= 1.f)
 			{
 				fps = frames;
 				frames = 0;
@@ -66,25 +71,23 @@ void Application::Run(const char* title, int width, int height, bool fullscreen)
 
 			Draw();
 
-			lastMousePos = mousePos;
-
-			if (glfwGetKey(window, GLFW_KEY_ESCAPE)) Quit();
+			if( showDemoWindow )
+			{
+				ImGui::ShowDemoWindow();
+			}
 
 			ImGui::Render();
 			ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
 			if( io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable )
 			{
-				GLFWwindow* backup_current_context = glfwGetCurrentContext();
+				GLFWwindow* backup_current_context = window;
 				ImGui::UpdatePlatformWindows();
 				ImGui::RenderPlatformWindowsDefault();
 				glfwMakeContextCurrent(backup_current_context);
 			}
 
-			glfwSwapBuffers(window);
-			glfwPollEvents();
-
-			quit = quit || glfwWindowShouldClose(window) == GLFW_TRUE;
+			this->window->Update();
 		}
 
 		ImGui_ImplOpenGL3_Shutdown();
@@ -93,7 +96,6 @@ void Application::Run(const char* title, int width, int height, bool fullscreen)
 	}
 
 	Shutdown();
-	DestroyWindow();
 }
 
 void Application::ClearScreen(glm::vec3 colour)
@@ -107,33 +109,28 @@ void Application::SetBackgroundColour(float r, float g, float b, float a)
 	glClearColor(r, g, b, a);
 }
 
-void Application::SetShowCursor(bool visible)
-{
-	//ShowCursor(visible);
-}
-
-void Application::SetVSync(bool enabled)
-{
-	glfwSwapInterval(enabled ? 1 : 0);
-}
-
 bool Application::HasWindowClosed()
 {
+	auto window = (GLFWwindow*)GetWindow().GetNativeWindow();
 	return glfwWindowShouldClose(window) == GLFW_TRUE;
+}
+
+void Application::OnEvent(Event& e)
+{
+	EventDispatcher dispatcher(e);
+	dispatcher.Dispatch<WindowCloseEvent>(BIND_EVENT_FN(Application::OnWindowClose));
+
+	camera->OnEvent(e);
 }
 
 unsigned int Application::GetWindowWidth() const
 {
-	int w = 0, h = 0;
-	glfwGetWindowSize(window, &w, &h);
-	return w;
+	return window->GetWidth();
 }
 
 unsigned int Application::GetWindowHeight() const
 {
-	int w = 0, h = 0;
-	glfwGetWindowSize(window, &w, &h);
-	return h;
+	return window->GetHeight();
 }
 
 float Application::GetTime() const
@@ -141,56 +138,8 @@ float Application::GetTime() const
 	return (float)glfwGetTime();
 }
 
-void Application::SetMousePosition(GLFWwindow* window, double x, double y)
+bool Application::OnWindowClose(WindowCloseEvent& e)
 {
-	instance->mousePos.x = (float)x;
-	instance->mousePos.y = (float)y;
-}
-
-bool Application::CreateWindow(const char* title, int width, int height, bool fullscreen)
-{
-	this->fullscreen = fullscreen;
-
-	if (glfwInit() == false)
-	{
-		std::cout << "GLFW failed to initialise\n";
-		return false;
-	}
-
-	window = glfwCreateWindow(width, height, title, (fullscreen ? glfwGetPrimaryMonitor() : nullptr), nullptr);
-
-	if (!window)
-	{
-		std::cout << "Window creation failed\n";
-		glfwTerminate();
-		return false;
-	}
-
-	glfwMakeContextCurrent(window);
-
-	if (!gladLoadGL())
-	{
-		std::cout << "OpenGL failed to load\n";
-		glfwDestroyWindow(window);
-		glfwTerminate();
-		return false;
-	}
-
-	std::cout << "GL: " << GLVersion.major << "." << GLVersion.minor << '\n';
-
-	glfwSetWindowSizeCallback(window, [](GLFWwindow*, int w, int h) 
-		{ 
-			glViewport(0, 0, w, h);
-		});
-
-	glClearColor(0, 0, 0, 1);
-	glEnable(GL_DEPTH_TEST);
-
+	quit = true;
 	return true;
-}
-
-void Application::DestroyWindow()
-{
-	glfwDestroyWindow(window);
-	glfwTerminate();
 }
