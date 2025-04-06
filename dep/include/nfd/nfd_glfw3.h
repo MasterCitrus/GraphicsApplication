@@ -13,7 +13,7 @@
 
 #include <GLFW/glfw3.h>
 #include <GLFW/glfw3native.h>
-#include <nfd.h>
+#include <nfd/nfd.h>
 #include <stdbool.h>
 
 #ifdef __cplusplus

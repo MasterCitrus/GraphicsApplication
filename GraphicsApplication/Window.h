@@ -36,6 +36,7 @@ public:
 	bool IsVSync() const;
 
 	void* GetNativeWindow() const { return window; }
+	void* GetNativeWindowHandle() const;
 
 private:
 	void Init(const WindowProperties& properties);

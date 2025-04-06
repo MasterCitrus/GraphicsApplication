@@ -7,6 +7,7 @@
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
 #include <glm/ext.hpp>
+#include <nfd/nfd_glfw3.h>
 
 #define BIND_EVENT_FUNC(x) std::bind(&Application::x, this, std::placeholders::_1)
 
@@ -26,6 +27,11 @@ void Application::Run(const char* title, unsigned int width, unsigned int height
 {
 	window = new Window({ title, width, height, fullscreen });
 	window->SetEventCallback(BIND_EVENT_FUNC(OnEvent));
+
+	windowHandle.handle = window->GetNativeWindowHandle();
+	windowHandle.type = NFD_WINDOW_HANDLE_TYPE_WINDOWS;
+
+	NFD_GetNativeWindowFromGLFWWindow((GLFWwindow*)window->GetNativeWindow(), &windowHandle);
 	if (window && Startup())
 	{
 		auto window = (GLFWwindow*)GetWindow().GetNativeWindow();

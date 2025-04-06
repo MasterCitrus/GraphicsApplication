@@ -11,8 +11,7 @@ Scene::Scene(Camera* camera, glm::vec2 windowSize, Light* light, glm::vec3 ambie
 
 Scene::~Scene()
 {
-	for( int i = 0; i < objects.size(); i++ ) delete objects[i];
-	objects.clear();
+	for (auto object : objects) delete object;
 
 	for( int i = 0; i < pointLights.size(); i++ ) delete pointLights[i];
 	pointLights.clear();
@@ -20,15 +19,15 @@ Scene::~Scene()
 
 void Scene::Draw()
 {
-	for( int i = 0; i < objects.size(); i++ )
+	for( auto object : objects )
 	{
-		std::vector<Light> lights = GetNearestLights(objects[i]);
+		std::vector<Light> lights = GetNearestLights(object);
 		for( int i = 0; i < lights.size(); i++ )
 		{
 			pointLightPositions[i] = lights[i].direction;
 			pointLightColours[i] = lights[i].colour * lights[i].intensity;
 		}
-		objects[i]->Draw(this);
+		object->Draw(this);
 	}
 
 	for( int i = 0; i < pointLights.size(); i++)

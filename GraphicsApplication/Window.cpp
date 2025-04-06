@@ -7,6 +7,10 @@
 #include <GLFW/glfw3.h>
 #include <iostream>
 
+#define GLFW_EXPOSE_NATIVE_WIN32
+#define GLFW_EXPOSE_NATIVE_WGL
+#include <GLFW/glfw3native.h>
+
 Window::Window(const WindowProperties properties)
 {
 	Init(properties);
@@ -34,6 +38,11 @@ void Window::SetVSync(bool enabled)
 bool Window::IsVSync() const
 {
 	return windowData.vsync;
+}
+
+void* Window::GetNativeWindowHandle() const
+{
+	return glfwGetWin32Window(window);
 }
 
 void Window::Init(const WindowProperties& properties)

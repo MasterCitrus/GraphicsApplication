@@ -11,12 +11,12 @@ class Skybox
 {
 public:
 	Skybox() = default;
-	Skybox(std::string& path, aie::ShaderProgram* shader, Camera* camera);
+	Skybox(const std::string& path, aie::ShaderProgram* shader, Camera* camera);
 	~Skybox();
 
 	void Draw();
 
-	void SetCubemap(std::string& path);
+	void SetCubemap(const std::string& path);
 
 private:
 	Cubemap* skyboxTexture;

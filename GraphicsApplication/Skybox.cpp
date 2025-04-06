@@ -7,7 +7,7 @@
 
 #include <glad/glad.h>
 
-Skybox::Skybox(std::string& path, aie::ShaderProgram* shader, Camera* camera)
+Skybox::Skybox(const std::string& path, aie::ShaderProgram* shader, Camera* camera)
 {
     this->shader = shader;
     this->camera = camera;
@@ -98,7 +98,7 @@ void Skybox::Draw()
     glDepthFunc(GL_LESS);
 }
 
-void Skybox::SetCubemap(std::string& path)
+void Skybox::SetCubemap(const std::string& path)
 {
 	delete skyboxTexture;
 	skyboxTexture = nullptr;

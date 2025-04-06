@@ -199,6 +199,7 @@
     <ClInclude Include="Events\Event.h" />
     <ClInclude Include="Events\KeyEvent.h" />
     <ClInclude Include="Events\MouseEvent.h" />
+    <ClInclude Include="Filesystem.h" />
     <ClInclude Include="Framebuffer.h" />
     <ClInclude Include="GraphicsContext.h" />
     <ClInclude Include="Input.h" />

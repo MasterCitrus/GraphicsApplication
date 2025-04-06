@@ -4,6 +4,7 @@
 #include "Events/ApplicationEvent.h"
 #include "Window.h"
 #include <glm/vec2.hpp>
+#include <nfd/nfd.h>
 
 struct GLFWwindow;
 
@@ -53,6 +54,7 @@ protected:
 
 	static Application* instance;
 	Window* window;
+	nfdwindowhandle_t windowHandle;
 	unsigned int fps;
 	bool quit;
 	bool fullscreen;
