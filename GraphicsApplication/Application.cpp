@@ -73,8 +73,6 @@ void Application::Run(const char* title, unsigned int width, unsigned int height
 
 			Update((float)deltaTime);
 
-			camera->Update((float)deltaTime, window);
-
 			Draw();
 
 			ImGuiDraw();
@@ -127,8 +125,6 @@ void Application::OnEvent(Event& e)
 {
 	EventDispatcher dispatcher(e);
 	dispatcher.Dispatch<WindowCloseEvent>(BIND_EVENT_FN(Application::OnWindowClose));
-
-	camera->OnEvent(e);
 }
 
 unsigned int Application::GetWindowWidth() const

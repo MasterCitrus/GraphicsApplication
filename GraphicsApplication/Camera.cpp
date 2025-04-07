@@ -48,7 +48,7 @@ void Camera::SetFocus(const glm::vec3& focalPoint)
 	UpdateView();
 }
 
-void Camera::Update(float delta, GLFWwindow* window)
+void Camera::Update(float delta)
 {
 
 	const glm::vec2& mouse = { Input::GetMouseX(), Input::GetMouseY() };

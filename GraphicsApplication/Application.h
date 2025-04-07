@@ -38,8 +38,6 @@ public:
 
 	bool& GetFullscreen() { return fullscreen; }
 
-	Camera* GetCamera() { return camera; }
-
 	static Application* Get() { return instance; }
 
 protected:
@@ -50,8 +48,6 @@ private:
 	bool OnWindowClose(WindowCloseEvent& e);
 
 protected:
-	Camera* camera;
-
 	static Application* instance;
 	Window* window;
 	nfdwindowhandle_t windowHandle;

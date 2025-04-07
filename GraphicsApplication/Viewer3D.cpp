@@ -4,6 +4,7 @@
 #include "Gizmos.h"
 #include "Scene.h"
 #include "Object.h"
+#include "Filesystem.h"
 #include <glm/glm.hpp>
 #include <glm/ext.hpp>
 #include <iostream>
@@ -14,7 +15,6 @@
 #include <GLFW/glfw3.h>
 #include <string>
 #include <nfd/nfd.hpp>
-#include <filesystem>
 
 using aie::Gizmos;
 
@@ -258,6 +258,9 @@ bool Viewer3D::Startup()
 	shader.loadShader(aie::eShaderStage::VERTEX, "./bin/Shaders/phong.vert");
 	shader.loadShader(aie::eShaderStage::FRAGMENT, "./bin/Shaders/phong.frag");
 
+	simpleShader.loadShader(aie::eShaderStage::VERTEX, "./bin/Shaders/simple.vert");
+	simpleShader.loadShader(aie::eShaderStage::FRAGMENT, "./bin/Shaders/simple.frag");
+
 	skyboxShader.loadShader(aie::eShaderStage::VERTEX, "./bin/Shaders/skybox.vert");
 	skyboxShader.loadShader(aie::eShaderStage::FRAGMENT, "./bin/Shaders/skybox.frag");
 
@@ -267,18 +270,22 @@ bool Viewer3D::Startup()
 		return false;
 	}
 
+	if( simpleShader.link() == false )
+	{
+		std::cout << "Shader Error: " << simpleShader.getLastError() << '\n';
+		return false;
+	}
+
 	if( skyboxShader.link() == false )
 	{
 		std::cout << "Skybox Shader Error: " << skyboxShader.getLastError() << '\n';
 		return false;
 	}
 
-	//skybox = new Skybox("./Working/Skyboxes/SmallNebulaSpace", &skyboxShader, camera);
-	//skyboxName = "SmallNebulaSpace";
-
 	Light light;
 	light.colour = { 1, 1, 1 };
-	light.direction = { 1, 1, -1 };
+	light.direction = { 0, -1, -1 };
+	light.intensity = 1.0f;
 	ambientLight = { 0.25f, 0.25f, 0.25f };
 
 	int count = 0;
@@ -302,6 +309,15 @@ bool Viewer3D::Startup()
 	scene->AddLight(new Light(glm::vec3(-5, 3, 0), glm::vec3(0, 1, 0), 100));
 	scene->AddLight(new Light(glm::vec3(0, 5, 0), glm::vec3(0, 0, 1), 100));
 
+	Mesh* mesh = new Mesh();
+	mesh->InitialiseQuad();
+	mesh->meshMaterial.Kd = { 0.1f, 0.1f, 0.1f };
+	Model* quadModel = new Model(mesh);
+	Object* quad = new Object(quadModel, &simpleShader);
+	quad->GetTransform().SetScale(10);
+	quad->GetTransform().SetPosition({ 0.0f, -0.1f, 0.0f });
+
+	scene->AddObject(quad);
 
 	return true;
 }
@@ -315,6 +331,7 @@ void Viewer3D::Shutdown()
 
 void Viewer3D::Update(float delta)
 {
+	if(viewportHovered || ( viewportFocused && viewportHovered ) ) camera->Update(delta);
 	scene->Update(delta);
 }
 
@@ -515,6 +532,16 @@ void Viewer3D::ImGuiDraw()
 	ImGui::End();
 
 	ImGui::Begin("Hierarchy");
+	ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_SpanAvailWidth;
+	if(!scene->GetObjects().empty() )
+	{
+		int i = 0;
+		for( auto object : scene->GetObjects() )
+		{
+
+		}
+		//ImGui::TreePop();
+	}
 
 	ImGui::End();
 
@@ -522,10 +549,17 @@ void Viewer3D::ImGuiDraw()
 
 	ImGui::End();
 
+	ImGui::Begin("Log");
+
+	ImGui::End();
+
 	ImGui::Begin("Viewport");
 	ImVec2 viewport = ImGui::GetCursorScreenPos();
 	ImVec2 availableViewport = ImGui::GetContentRegionAvail();
 	ImVec2 windowSize = ImGui::GetWindowSize();
+
+	viewportHovered = ImGui::IsWindowHovered();
+	viewportFocused = ImGui::IsWindowFocused();
 
 	if( FramebufferSpec spec = framebuffer->GetSpec(); availableViewport.x > 0.0f && availableViewport.y > 0.0f && ( spec.width != availableViewport.x || spec.height != availableViewport.y ) )
 	{
@@ -553,6 +587,7 @@ void Viewer3D::ImGuiDraw()
 void Viewer3D::OnEvent(Event& e)
 {
 	Application::OnEvent(e);
+	if( viewportHovered || ( viewportFocused && viewportHovered ) ) camera->OnEvent(e);
 
 	EventDispatcher dispatcher(e);
 	dispatcher.Dispatch<KeyPressedEvent>(BIND_EVENT_FN( Viewer3D::OnKeyPressed ));
@@ -561,77 +596,40 @@ void Viewer3D::OnEvent(Event& e)
 
 void Viewer3D::LoadModel()
 {
-	NFD::Guard nfdGuard;
-	NFD::UniquePath outPath;
-	nfdfilteritem_t filterModel[2] = { { "Wavefront", "obj" }, {"FBX", "fbx"} };
-	nfdfilteritem_t filterMaterial[1] = { "Material", "mtl" };
-
-	std::string defaultLocation = std::filesystem::current_path().string();
-	defaultLocation += "\\Working";
-
-	std::cout << defaultLocation << '\n';
-
-	nfdresult_t result = NFD::OpenDialog(outPath, filterModel, 2, defaultLocation.c_str());
-	if( result == NFD_OKAY )
+	std::string path;
+	if( Filesystem::LoadFilePath(path, FileType::Model) )
 	{
-		std::string path = outPath.get();
-		std::cout << path << '\n';
-
 		Model* model = new Model(path.c_str());
 
 		int index = path.find(".obj");
 
 		if( index != -1 )
 		{
-			//nfdresult_t result = NFD::OpenDialog(outPath, filterMaterial, 1, defaultLocation.c_str());
-			//if( result == NFD_OKAY )
-			//{
-			//	path = outPath.get();
-			//	model->LoadMaterials(path.c_str());
-			//}
-			//else if( result == NFD_CANCEL ) std::cout << "Model Material Load Canceled\n";
-			//else std::cout << "Error: " << NFD::GetError() << '\n';
-
 			path.replace(index, path.size(), ".mtl");
-
 			model->LoadMaterials(path.c_str());
 		}
 		scene->AddObject(new Object(model, &shader));
 	}
-	else if( result == NFD_CANCEL ) std::cout << "Model Load Canceled\n";
-	else std::cout << "Error: " << NFD::GetError() << '\n';
+	else std::cout << "File load failed or cancelled\n";
 }
 
 void Viewer3D::LoadSkybox()
 {
-	NFD::Guard nfdGuard;
-	NFD::UniquePath outPath;
-
-	std::string defaultLocation = std::filesystem::current_path().string();
-	defaultLocation += "\\Working\\Skyboxes";
-
-	std::cout << defaultLocation << '\n';
-
-	nfdresult_t result = NFD::PickFolder(outPath, defaultLocation.c_str());
-	if( result == NFD_OKAY )
+	std::string path;
+	if( Filesystem::LoadPath(path) )
 	{
-		std::string path = outPath.get();
+		int index = path.find_last_of("/\\");
+		skyboxName = path.substr(index + 1);
 		if( skybox )
 		{
 			skybox->SetCubemap(path);
-			int index = path.find_last_of("/\\");
-			skyboxName = path.substr(index + 1);
 		}
 		else
 		{
 			skybox = new Skybox(path, &skyboxShader, camera);
-			int index = path.find_last_of("/\\");
-			skyboxName = path.substr(index + 1);
 		}
-		
 	}
-	else if( result == NFD_CANCEL ) {}
-	else std::cout << "Error: " << NFD::GetError() << '\n';
+	else std::cout << "Load path failed or cancelled\n";
 }
 
 bool Viewer3D::OnKeyPressed(KeyPressedEvent& e)

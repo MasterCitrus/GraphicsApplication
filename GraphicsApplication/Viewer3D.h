@@ -25,6 +25,8 @@ public:
 	void Draw() override;
 	void ImGuiDraw() override;
 
+	Camera* GetCamera() { return camera; }
+
 	void OnEvent(Event& e) override;
 
 	void LoadModel();
@@ -36,9 +38,10 @@ protected:
 
 protected:
 	ShaderProgram shader;
-	ShaderProgram normalShader;
+	ShaderProgram simpleShader;
 	ShaderProgram skyboxShader;
 
+	Camera* camera;
 	Scene* scene;
 
 	Framebuffer* framebuffer;
@@ -49,4 +52,6 @@ protected:
 	glm::vec3 ambientLight;
 
 	bool showAppStats = false;
+	bool viewportFocused;
+	bool viewportHovered;
 };

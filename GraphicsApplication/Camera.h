@@ -32,7 +32,7 @@ public:
 	void SetViewportSize(float width, float height);
 	void SetFocus(const glm::vec3& focalPoint);
 
-	void Update(float delta, GLFWwindow* window);
+	void Update(float delta);
 	void OnEvent(Event& e);
 
 	bool OnMouseScroll(MouseScrolledEvent& e);

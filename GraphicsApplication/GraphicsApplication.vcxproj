@@ -162,6 +162,7 @@
     <ClCompile Include="..\dep\include\imgui\imgui_widgets.cpp" />
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="Cubemap.cpp" />
+    <ClCompile Include="Filesystem.cpp" />
     <ClCompile Include="Framebuffer.cpp" />
     <ClCompile Include="GraphicsContext.cpp" />
     <ClCompile Include="Input.cpp" />
@@ -226,10 +227,10 @@
     <None Include="..\bin\Shaders\pbr.vert" />
     <None Include="..\bin\Shaders\phong.frag" />
     <None Include="..\bin\Shaders\phong.vert" />
+    <None Include="..\bin\Shaders\simple.frag" />
+    <None Include="..\bin\Shaders\simple.vert" />
     <None Include="..\bin\Shaders\skybox.frag" />
     <None Include="..\bin\Shaders\skybox.vert" />
-    <None Include="simple.frag" />
-    <None Include="simple.vert" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

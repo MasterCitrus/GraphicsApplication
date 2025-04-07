@@ -10,6 +10,11 @@ Model::Model(const char* path)
 	LoadModel(path);
 }
 
+Model::Model(Mesh* mesh)
+{
+	meshes.push_back(mesh);
+}
+
 Model::~Model()
 {
 	for( Mesh* mesh : meshes ) delete mesh;

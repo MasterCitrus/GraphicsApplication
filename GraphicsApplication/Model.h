@@ -13,6 +13,7 @@ class Model
 public:
 	Model() = default;
 	Model(const char* path);
+	Model(Mesh* mesh);
 	~Model();
 
 	std::vector<Mesh*> GetMeshes() { return meshes; }

@@ -138,6 +138,9 @@
     <ClCompile Include="Input.cpp">
       <Filter>Source Files\Engine</Filter>
     </ClCompile>
+    <ClCompile Include="Filesystem.cpp">
+      <Filter>Source Files\Engine</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Application.h">
@@ -250,12 +253,6 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="simple.vert">
-      <Filter>Shaders</Filter>
-    </None>
-    <None Include="simple.frag">
-      <Filter>Shaders</Filter>
-    </None>
     <None Include="..\bin\Shaders\phong.frag">
       <Filter>Shaders</Filter>
     </None>
@@ -272,6 +269,12 @@
       <Filter>Shaders</Filter>
     </None>
     <None Include="..\bin\Shaders\pbr.vert">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="..\bin\Shaders\simple.frag">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="..\bin\Shaders\simple.vert">
       <Filter>Shaders</Filter>
     </None>
   </ItemGroup>
