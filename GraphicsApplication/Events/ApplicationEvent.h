@@ -37,3 +37,12 @@ public:
 	EVENT_CLASS_TYPE(WindowClose);
 	EVENT_CLASS_CATEGORY(EventCategoryApplication);
 };
+
+class WindowRefreshEvent : public Event
+{
+public:
+	WindowRefreshEvent() {}
+
+	EVENT_CLASS_TYPE(WindowRefresh);
+	EVENT_CLASS_CATEGORY(EventCategoryApplication);
+};

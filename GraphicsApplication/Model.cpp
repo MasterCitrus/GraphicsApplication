@@ -98,7 +98,7 @@ Mesh* Model::ProcessMesh(aiMesh* mesh, const aiScene* scene)
 	}
 
 	int numVertices = mesh->mNumVertices;
-	Mesh::Vertex* vertices = new Mesh::Vertex[numVertices];
+	Vertex* vertices = new Vertex[numVertices];
 	for( int i = 0; i < numVertices; i++ )
 	{
 		vertices[i].position = glm::vec4(mesh->mVertices[i].x, mesh->mVertices[i].y, mesh->mVertices[i].z, 1);

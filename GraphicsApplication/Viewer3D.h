@@ -35,6 +35,7 @@ public:
 protected:
 	bool OnKeyPressed(KeyPressedEvent& e) override;
 	bool OnMouseButtonPressed(MouseButtonPressedEvent& e) override;
+	bool OnWindowRefresh(WindowRefreshEvent& e);
 
 protected:
 	ShaderProgram shader;

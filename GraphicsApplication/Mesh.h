@@ -1,6 +1,7 @@
 #pragma once
 #include "Texture.h"
-#include "MAterial.h"
+#include "Material.h"
+#include "Vertex.h"
 #include <glm/vec4.hpp>
 #include <glm/vec3.hpp>
 #include <glm/vec2.hpp>
@@ -12,14 +13,6 @@ class Mesh
 {
 public:
 	Material meshMaterial;
-
-	struct Vertex
-	{
-		glm::vec4 position;
-		glm::vec4 normal;
-		glm::vec2 texCoord;
-		glm::vec4 tangent;
-	};
 
 	Mesh() : triCount(0), vao(0), vbo(0), ibo(0) {}
 	Mesh(Vertex* vertices, unsigned int* indices, unsigned int indexCount, unsigned int vertexCount);

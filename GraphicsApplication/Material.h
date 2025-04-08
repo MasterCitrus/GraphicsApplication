@@ -7,6 +7,7 @@ using aie::Texture;
 struct Material
 {
 	Material();
+	~Material();
 
 	Texture mapKd;
 	Texture mapKs;

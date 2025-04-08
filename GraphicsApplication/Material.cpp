@@ -7,3 +7,8 @@ Material::Material() : Kd({ 0.0f, 0.0f, 0.0f }), Ka({ 0.0f, 0.0f, 0.0f }), Ks({ 
 	mapKs.load("./Working/defaultspecular.jpg");
 	mapBump.load("./Working/defaultnormal.jpg");
 }
+
+Material::~Material()
+{
+
+}

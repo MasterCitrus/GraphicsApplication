@@ -162,6 +162,14 @@ void Window::Init(const WindowProperties& properties)
 								 MouseMovedEvent event((float)xPos, (float)yPos);
 								 data.eventCallback(event);
 							 });
+
+	glfwSetWindowRefreshCallback(window, [](GLFWwindow* window)
+								{
+									WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
+
+									WindowRefreshEvent event;
+									data.eventCallback(event);
+								});
 }
 
 void Window::Shutdown()

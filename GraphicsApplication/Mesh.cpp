@@ -27,12 +27,21 @@ void Mesh::ApplyMaterial(aie::ShaderProgram* shader)
 	shader->bindUniform("Ks", meshMaterial.Ks);
 	shader->bindUniform("specularPower", meshMaterial.shininess);
 
-	meshMaterial.mapKd.bind(0);
-	shader->bindUniform("diffuseTex", 0);
-	meshMaterial.mapKs.bind(1);
-	shader->bindUniform("specularTex", 1);
-	meshMaterial.mapBump.bind(2);
-	shader->bindUniform("normalTex", 2);
+	if( meshMaterial.mapKd.getHandle() != 0 )
+	{
+		meshMaterial.mapKd.bind(0);
+		shader->bindUniform("diffuseTex", 0);
+	}
+	if( meshMaterial.mapKs.getHandle() != 0 )
+	{
+		meshMaterial.mapKs.bind(1);
+		shader->bindUniform("specularTex", 1);
+	}
+	if( meshMaterial.mapBump.getHandle() != 0 )
+	{
+		meshMaterial.mapBump.bind(2);
+		shader->bindUniform("normalTex", 2);
+	}
 }
 
 void Mesh::LoadMaterial(const char* filename)
@@ -186,27 +195,25 @@ void Mesh::InitialiseQuad()
 	glBindVertexArray(vao);
 	glBindBuffer(GL_ARRAY_BUFFER, vbo);
 
-	Vertex vertices[6];
-	vertices[0].position = { -0.5f, 0.0f, 0.5f, 1 };
-	vertices[1].position = { 0.5f, 0.0f, 0.5f, 1 };
+	Vertex vertices[4];
+	vertices[0].position = { 0.5f, 0.0f, 0.5f, 1 };
+	vertices[1].position = { 0.5f, 0.0f, -0.5f, 1 };
 	vertices[2].position = { -0.5f, 0.0f, -0.5f, 1 };
-	vertices[3].position = { -0.5f, 0.0f, -0.5f, 1 };
-	vertices[4].position = { 0.5f, 0.0f, 0.5f, 1 };
-	vertices[5].position = { 0.5f, 0.0f, -0.5f, 1 };
+	vertices[3].position = { -0.5f, 0.0f, 0.5f, 1 };
 
 	vertices[0].normal = { 0, 1, 0, 0};
 	vertices[1].normal = { 0, 1, 0, 0};
 	vertices[2].normal = { 0, 1, 0, 0};
 	vertices[3].normal = { 0, 1, 0, 0};
-	vertices[4].normal = { 0, 1, 0, 0};
-	vertices[5].normal = { 0, 1, 0, 0};
 
 	vertices[0].texCoord = { 0.0f, 1.0f };
 	vertices[1].texCoord = { 1.0f, 1.0f };
 	vertices[2].texCoord = { 0.0f, 0.0f };
-	vertices[3].texCoord = { 0.0f, 0.0f };
-	vertices[4].texCoord = { 1.0f, 1.0f };
-	vertices[5].texCoord = { 1.0f, 0.0f };
+	vertices[3].texCoord = { 1.0f, 0.0f };
+
+	std::vector<unsigned int> indices = { 0, 1, 3, 1, 2, 3 };
+
+	CalculateTangents(vertices, 4, indices);
 
 	glBufferData(GL_ARRAY_BUFFER, 6 * sizeof(Vertex), vertices, GL_STATIC_DRAW);
 
@@ -219,7 +226,15 @@ void Mesh::InitialiseQuad()
 	glEnableVertexAttribArray(2);
 	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, texCoord));
 
+	glEnableVertexAttribArray(3);
+	glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, tangent));
+
+	glGenBuffers(1, &ibo);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned int), indices.data(), GL_STATIC_DRAW);
+
 	glBindVertexArray(0);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 
 	triCount = 2;

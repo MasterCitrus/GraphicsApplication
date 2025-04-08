@@ -311,9 +311,9 @@ bool Viewer3D::Startup()
 
 	Mesh* mesh = new Mesh();
 	mesh->InitialiseQuad();
-	mesh->meshMaterial.Kd = { 0.1f, 0.1f, 0.1f };
+	mesh->meshMaterial.Kd = { 0.5f, 0.5f, 0.5f };
 	Model* quadModel = new Model(mesh);
-	Object* quad = new Object(quadModel, &simpleShader);
+	Object* quad = new Object(quadModel, &shader);
 	quad->GetTransform().SetScale(10);
 	quad->GetTransform().SetPosition({ 0.0f, -0.1f, 0.0f });
 
@@ -592,6 +592,7 @@ void Viewer3D::OnEvent(Event& e)
 	EventDispatcher dispatcher(e);
 	dispatcher.Dispatch<KeyPressedEvent>(BIND_EVENT_FN( Viewer3D::OnKeyPressed ));
 	dispatcher.Dispatch<MouseButtonPressedEvent>(BIND_EVENT_FN( Viewer3D::OnMouseButtonPressed ));
+	//dispatcher.Dispatch<WindowRefreshEvent>(BIND_EVENT_FN(Viewer3D::OnWindowRefresh));
 }
 
 void Viewer3D::LoadModel()
@@ -646,4 +647,31 @@ bool Viewer3D::OnKeyPressed(KeyPressedEvent& e)
 bool Viewer3D::OnMouseButtonPressed(MouseButtonPressedEvent& e)
 {
 	return false;
+}
+
+bool Viewer3D::OnWindowRefresh(WindowRefreshEvent& e)
+{
+	ImGui::Render();
+	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+
+	ImGuiIO& io = ImGui::GetIO();
+	if( io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable )
+	{
+		GLFWwindow* backup_current_context = (GLFWwindow*)window->GetNativeWindow();
+		ImGui::UpdatePlatformWindows();
+		ImGui::RenderPlatformWindowsDefault();
+		glfwMakeContextCurrent(backup_current_context);
+	}
+
+	ImGui_ImplOpenGL3_NewFrame();
+	ImGui_ImplGlfw_NewFrame();
+	ImGui::NewFrame();
+
+	Draw();
+	ImGuiDraw();
+
+	ImGui::Render();
+	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+
+	return true;
 }
