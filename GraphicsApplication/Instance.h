@@ -10,8 +10,8 @@ namespace aie { class ShaderProgram; }
 class Instance
 {
 public:
-	Instance(glm::mat4 transform, Model* mesh, aie::ShaderProgram* shader);
-	Instance(glm::vec3 position, glm::vec3 eulerAngles, glm::vec3 scale, Model* mesh, aie::ShaderProgram* shader);
+	Instance(glm::mat4 transform, Model* mesh, aie::ShaderProgram& shader);
+	Instance(glm::vec3 position, glm::vec3 eulerAngles, glm::vec3 scale, Model* mesh, aie::ShaderProgram& shader);
 
 	void Update(float delta);
 	void Draw(Camera* camera, float windowWidth, float windowHeight, glm::vec3& ambientLight, Light* light);
@@ -32,5 +32,5 @@ public:
 protected:
 	glm::mat4 transform;
 	Model* mesh;
-	aie::ShaderProgram* shader;
+	aie::ShaderProgram& shader;
 };

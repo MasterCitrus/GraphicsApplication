@@ -2,52 +2,38 @@
 
 #include <string>
 
-namespace aie {
-
-// a class for wrapping up an opengl texture image
-class Texture {
+class Texture
+{
 public:
-
-	enum Format : unsigned int {
-		RED	= 1,
+	enum Format : unsigned int
+	{
+		RED = 1,
 		RG,
 		RGB,
 		RGBA
 	};
 
 	Texture();
-	Texture(const char* filename);
+	Texture(const std::string& path, const std::string& type);
 	Texture(unsigned int width, unsigned int height, Format format, unsigned char* pixels = nullptr);
-	virtual ~Texture();
+	~Texture();
 
-	// load a jpg, bmp, png or tga
-	bool load(const char* filename);
+	bool Load(const std::string& path);
+	void Create(unsigned int width, unsigned int height, Format format, unsigned char* pixels = nullptr);
 
-	// creates a texture that can be filled in with pixels
-	void create(unsigned int width, unsigned int height, Format format, unsigned char* pixels = nullptr);
+	unsigned int GetWidth() const { return width; }
+	unsigned int GetHeight() const { return height; }
+	unsigned int GetTextureID() const { return textureID; }
+	std::string GetPath() const { return path; }
+	std::string GetType() const { return type; }
 
-	// returns the filename or "none" if not loaded from a file
-	const std::string& getFilename() const { return m_filename; }
+	void Bind(unsigned int slot = 0) const;
 
-	// binds the texture to the specified slot
-	void bind(unsigned int slot) const;
-
-	// returns the opengl texture handle
-	unsigned int getHandle() const { return m_glHandle; }
-
-	unsigned int getWidth() const { return m_width; }
-	unsigned int getHeight() const { return m_height; }
-	unsigned int getFormat() const { return m_format; }
-	const unsigned char* getPixels() const { return m_loadedPixels; }
-
-protected:
-
-	std::string		m_filename;
-	unsigned int	m_width;
-	unsigned int	m_height;
-	unsigned int	m_glHandle;
-	unsigned int	m_format;
-	unsigned char*	m_loadedPixels;
+private:
+	std::string path;
+	std::string type;
+	unsigned int width, height;
+	unsigned int textureID;
+	unsigned int format;
+	unsigned char* pixels;
 };
-
-} // namespace aie

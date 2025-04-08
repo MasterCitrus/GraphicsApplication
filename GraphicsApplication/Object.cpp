@@ -4,7 +4,7 @@
 #include "Model.h"
 #include "Camera.h"
 
-Object::Object(Model* model, aie::ShaderProgram* shader) : model(model), shader(shader)
+Object::Object(Model* model, aie::ShaderProgram& shader) : model(model), shader(shader)
 {
 	transform.ComputeTransform();
 }
@@ -22,23 +22,23 @@ void Object::Update(float delta)
 
 void Object::Draw(Scene* scene)
 {
-	shader->bind();
+	shader.bind();
 
 	auto pvm = scene->GetCamera()->GetProjectionMatrix() * scene->GetCamera()->GetViewMatrix() * transform.GetLocalMatrix();
 
-	shader->bindUniform("ProjectionViewModel", pvm);
+	shader.bindUniform("ProjectionViewModel", pvm);
 
-	shader->bindUniform("ModelMatrix", transform.GetLocalMatrix());
-	shader->bindUniform("AmbientColour", scene->GetAmbientLight());
-	shader->bindUniform("LightColour", scene->GetLight().colour * scene->GetLight().intensity);
-	shader->bindUniform("LightDirection", scene->GetLight().direction);
+	shader.bindUniform("ModelMatrix", transform.GetLocalMatrix());
+	shader.bindUniform("AmbientColour", scene->GetAmbientLight());
+	shader.bindUniform("LightColour", scene->GetLight().colour * scene->GetLight().intensity);
+	shader.bindUniform("LightDirection", scene->GetLight().direction);
 
-	shader->bindUniform("CameraPosition", scene->GetCamera()->GetPosition());
+	shader.bindUniform("CameraPosition", scene->GetCamera()->GetPosition());
 
 	int numLights = scene->GetNumLights();
-	shader->bindUniform("numLights", numLights);
-	shader->bindUniform("PointLightPosition", numLights, scene->GetLightPositions());
-	shader->bindUniform("PointLightColour", numLights, scene->GetLightColours());
+	shader.bindUniform("numLights", numLights);
+	shader.bindUniform("PointLightPosition", numLights, scene->GetLightPositions());
+	shader.bindUniform("PointLightColour", numLights, scene->GetLightColours());
 
 	model->Draw(shader);
 }

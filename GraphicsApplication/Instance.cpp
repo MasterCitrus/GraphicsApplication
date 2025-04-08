@@ -6,11 +6,11 @@
 #include "Light.h"
 #include <glm/ext.hpp>
 
-Instance::Instance(glm::mat4 transform, Model* mesh, aie::ShaderProgram* shader) : transform(transform), mesh(mesh), shader(shader)
+Instance::Instance(glm::mat4 transform, Model* mesh, aie::ShaderProgram& shader) : transform(transform), mesh(mesh), shader(shader)
 {
 }
 
-Instance::Instance(glm::vec3 position, glm::vec3 eulerAngles, glm::vec3 scale, Model* mesh, aie::ShaderProgram* shader) : mesh(mesh), shader(shader)
+Instance::Instance(glm::vec3 position, glm::vec3 eulerAngles, glm::vec3 scale, Model* mesh, aie::ShaderProgram& shader) : mesh(mesh), shader(shader)
 {
 	transform = MakeTransform(position, eulerAngles, scale);
 }
@@ -22,41 +22,41 @@ void Instance::Update(float delta)
 
 void Instance::Draw(Camera* camera, float windowWidth, float windowHeight, glm::vec3& ambientLight, Light* light)
 {
-	shader->bind();
+	shader.bind();
 
 	auto pvm = camera->GetProjectionMatrix() * camera->GetViewMatrix() * transform;
 
-	shader->bindUniform("ProjectionViewModel", pvm);
+	shader.bindUniform("ProjectionViewModel", pvm);
 
-	shader->bindUniform("ModelMatrix", transform);
-	shader->bindUniform("AmbientColour", ambientLight);
-	shader->bindUniform("LightColour", light->colour);
-	shader->bindUniform("LightDirection", light->direction);
+	shader.bindUniform("ModelMatrix", transform);
+	shader.bindUniform("AmbientColour", ambientLight);
+	shader.bindUniform("LightColour", light->colour);
+	shader.bindUniform("LightDirection", light->direction);
 
-	shader->bindUniform("cameraPosition", camera->GetPosition());
+	shader.bindUniform("cameraPosition", camera->GetPosition());
 
 	mesh->Draw(shader);
 }
 
 void Instance::Draw(Scene* scene)
 {
-	shader->bind();
+	shader.bind();
 
 	auto pvm = scene->GetCamera()->GetProjectionMatrix() * scene->GetCamera()->GetViewMatrix() * transform;
 
-	shader->bindUniform("ProjectionViewModel", pvm);
+	shader.bindUniform("ProjectionViewModel", pvm);
 
-	shader->bindUniform("ModelMatrix", transform);
-	shader->bindUniform("AmbientColour", scene->GetAmbientLight());
-	shader->bindUniform("LightColour", scene->GetLight().colour * scene->GetLight().intensity);
-	shader->bindUniform("LightDirection", scene->GetLight().direction);
+	shader.bindUniform("ModelMatrix", transform);
+	shader.bindUniform("AmbientColour", scene->GetAmbientLight());
+	shader.bindUniform("LightColour", scene->GetLight().colour * scene->GetLight().intensity);
+	shader.bindUniform("LightDirection", scene->GetLight().direction);
 
-	shader->bindUniform("CameraPosition", scene->GetCamera()->GetPosition());
+	shader.bindUniform("CameraPosition", scene->GetCamera()->GetPosition());
 
 	int numLights = scene->GetNumLights();
-	shader->bindUniform("numLights", numLights);
-	shader->bindUniform("PointLightPosition", numLights, scene->GetLightPositions());
-	shader->bindUniform("PointLightColour", numLights, scene->GetLightColours());
+	shader.bindUniform("numLights", numLights);
+	shader.bindUniform("PointLightPosition", numLights, scene->GetLightPositions());
+	shader.bindUniform("PointLightColour", numLights, scene->GetLightColours());
 
 	mesh->Draw(shader);
 }

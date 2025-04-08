@@ -22,9 +22,10 @@ uniform vec3 Kd;
 uniform vec3 Ks;
 uniform float specularPower;
 
-uniform sampler2D diffuseTex;
-uniform sampler2D specularTex;
-uniform sampler2D normalTex;
+uniform sampler2D diffuseTex1;
+uniform sampler2D specularTex1;
+uniform sampler2D normalTex1;
+uniform sampler2D heightTex1;
 
 out vec4 FragColour;
 
@@ -47,9 +48,9 @@ void main()
 	vec3 T = normalize(vTangent);
 	vec3 B = normalize(vBiTangent);
 
-	vec3 texDiffuse = texture(diffuseTex, vTexCoords).rgb;
-	vec3 texSpecular = texture(specularTex, vTexCoords).rgb;
-	vec3 texNormal = texture(normalTex, vTexCoords).rgb;
+	vec3 texDiffuse = texture(diffuseTex1, vTexCoords).rgb;
+	vec3 texSpecular = texture(specularTex1, vTexCoords).rgb;
+	vec3 texNormal = texture(normalTex1, vTexCoords).rgb;
 
 	mat3 TBN = mat3(T, B, N);
 

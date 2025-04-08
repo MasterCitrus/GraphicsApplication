@@ -16,14 +16,16 @@ public:
 
 	Mesh() : triCount(0), vao(0), vbo(0), ibo(0) {}
 	Mesh(Vertex* vertices, unsigned int* indices, unsigned int indexCount, unsigned int vertexCount);
+	Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices, std::vector<Texture> textures);
 	virtual ~Mesh();
 
 
-	void ApplyMaterial(aie::ShaderProgram* shader);
+	void ApplyMaterial(aie::ShaderProgram& shader);
 	void LoadMaterial(const char* filename);
 
 	void InitialiseFromFile(const char* filename);
-	void Initialise(unsigned int vertexCount, const Vertex* vertices, unsigned int indexCount = 0, unsigned int* indices = nullptr);
+	void Initialise(std::vector<Vertex> vertices, std::vector<unsigned int> indices);
+	void InitialiseOld(unsigned int vertexCount, const Vertex* vertices, unsigned int indexCount = 0, unsigned int* indices = nullptr);
 	void InitialiseQuad();
 	void InitilaiseCube();
 
@@ -34,6 +36,7 @@ public:
 	virtual void Draw();
 
 protected:
+	std::vector<Texture> textures;
 	unsigned int triCount;
 	unsigned int vao, vbo, ibo;
 };

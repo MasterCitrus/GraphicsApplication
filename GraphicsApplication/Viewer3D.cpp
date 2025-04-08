@@ -309,15 +309,15 @@ bool Viewer3D::Startup()
 	scene->AddLight(new Light(glm::vec3(-5, 3, 0), glm::vec3(0, 1, 0), 100));
 	scene->AddLight(new Light(glm::vec3(0, 5, 0), glm::vec3(0, 0, 1), 100));
 
-	Mesh* mesh = new Mesh();
-	mesh->InitialiseQuad();
-	mesh->meshMaterial.Kd = { 0.5f, 0.5f, 0.5f };
-	Model* quadModel = new Model(mesh);
-	Object* quad = new Object(quadModel, &shader);
-	quad->GetTransform().SetScale(10);
-	quad->GetTransform().SetPosition({ 0.0f, -0.1f, 0.0f });
+	//Mesh mesh;
+	//mesh.InitialiseQuad();
+	//mesh.meshMaterial.Kd = { 0.5f, 0.5f, 0.5f };
+	//Model* quadModel = new Model(mesh);
+	//Object* quad = new Object(quadModel, &shader);
+	//quad->GetTransform().SetScale(10);
+	//quad->GetTransform().SetPosition({ 0.0f, -0.1f, 0.0f });
 
-	scene->AddObject(quad);
+	//scene->AddObject(quad);
 
 	return true;
 }
@@ -563,7 +563,7 @@ void Viewer3D::ImGuiDraw()
 
 	if( FramebufferSpec spec = framebuffer->GetSpec(); availableViewport.x > 0.0f && availableViewport.y > 0.0f && ( spec.width != availableViewport.x || spec.height != availableViewport.y ) )
 	{
-		framebuffer->Resize(availableViewport.x, availableViewport.y);
+		framebuffer->Resize((unsigned int)availableViewport.x, (unsigned int)availableViewport.y);
 		camera->SetViewportSize(availableViewport.x, availableViewport.y);
 	}
 
@@ -602,14 +602,14 @@ void Viewer3D::LoadModel()
 	{
 		Model* model = new Model(path.c_str());
 
-		int index = path.find(".obj");
+		size_t index = path.find(".obj");
 
 		if( index != -1 )
 		{
 			path.replace(index, path.size(), ".mtl");
 			model->LoadMaterials(path.c_str());
 		}
-		scene->AddObject(new Object(model, &shader));
+		scene->AddObject(new Object(model, shader));
 	}
 	else std::cout << "File load failed or cancelled\n";
 }
@@ -619,7 +619,7 @@ void Viewer3D::LoadSkybox()
 	std::string path;
 	if( Filesystem::LoadPath(path) )
 	{
-		int index = path.find_last_of("/\\");
+		size_t index = path.find_last_of("/\\");
 		skyboxName = path.substr(index + 1);
 		if( skybox )
 		{

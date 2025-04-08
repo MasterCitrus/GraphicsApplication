@@ -11,7 +11,7 @@ class Object
 {
 public:
 	Object() = default;
-	Object(Model* model, aie::ShaderProgram* shader);
+	Object(Model* model, aie::ShaderProgram& shader);
 	~Object();
 
 	void Update(float delta);
@@ -28,5 +28,5 @@ private:
 	Transform transform;
 	Model* model = nullptr;
 	Object* parent = nullptr;
-	aie::ShaderProgram* shader;
+	aie::ShaderProgram& shader;
 };

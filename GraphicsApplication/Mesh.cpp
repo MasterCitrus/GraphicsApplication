@@ -10,7 +10,13 @@
 
 Mesh::Mesh(Vertex* vertices, unsigned int* indices, unsigned int indexCount, unsigned int vertexCount) : triCount(0), vao(0), vbo(0), ibo(0)
 {
-	Initialise(vertexCount, vertices, indexCount, indices);
+	InitialiseOld(vertexCount, vertices, indexCount, indices);
+}
+
+Mesh::Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices, std::vector<Texture> textures) 
+	: triCount(0), vao(0), vbo(0), ibo(0), textures(textures)
+{
+	Initialise(vertices, indices);
 }
 
 Mesh::~Mesh()
@@ -20,27 +26,30 @@ Mesh::~Mesh()
 	glDeleteBuffers(1, &ibo);
 }
 
-void Mesh::ApplyMaterial(aie::ShaderProgram* shader)
+void Mesh::ApplyMaterial(aie::ShaderProgram& shader)
 {
-	shader->bindUniform("Ka", meshMaterial.Ka);
-	shader->bindUniform("Kd", meshMaterial.Kd);
-	shader->bindUniform("Ks", meshMaterial.Ks);
-	shader->bindUniform("specularPower", meshMaterial.shininess);
+	shader.bind();
 
-	if( meshMaterial.mapKd.getHandle() != 0 )
+	shader.bindUniform("Ka", meshMaterial.Ka);
+	shader.bindUniform("Kd", meshMaterial.Kd);
+	shader.bindUniform("Ks", meshMaterial.Ks);
+	shader.bindUniform("specularPower", meshMaterial.shininess);
+
+	unsigned int diffuseNr = 1;
+	unsigned int specularNr = 1;
+	unsigned int normalNr = 1;
+	unsigned int heightNr = 1;
+	for( int i = 0; i < textures.size(); i++ )
 	{
-		meshMaterial.mapKd.bind(0);
-		shader->bindUniform("diffuseTex", 0);
-	}
-	if( meshMaterial.mapKs.getHandle() != 0 )
-	{
-		meshMaterial.mapKs.bind(1);
-		shader->bindUniform("specularTex", 1);
-	}
-	if( meshMaterial.mapBump.getHandle() != 0 )
-	{
-		meshMaterial.mapBump.bind(2);
-		shader->bindUniform("normalTex", 2);
+		std::string number;
+		std::string name = textures[i].GetType();
+		if( name == "diffuseTex" ) number = std::to_string(diffuseNr++);
+		else if( name == "specularTex" ) number = std::to_string(specularNr++);
+		else if( name == "normalTex" ) number = std::to_string(normalNr++);
+		else if( name == "heightTex" ) number = std::to_string(heightNr++);
+
+		shader.bindUniform(name.c_str(), i);
+		glBindTexture(GL_TEXTURE_2D, textures[i].GetTextureID());
 	}
 }
 
@@ -68,27 +77,6 @@ void Mesh::LoadMaterial(const char* filename)
 		else if (line.find("Kd") == 0) ss >> header >> meshMaterial.Kd.x >> meshMaterial.Kd.y >> meshMaterial.Kd.z;
 		else if (line.find("Ks") == 0) ss >> header >> meshMaterial.Ks.x >> meshMaterial.Ks.y >> meshMaterial.Ks.z;
 		else if (line.find("Ns") == 0) ss >> header >> meshMaterial.shininess;
-		else if (line.find("map_Kd") == 0)
-		{
-			std::string mapFilename;
-			ss >> header >> mapFilename;
-			std::string fileName = directory + mapFilename;
-			meshMaterial.mapKd.load(fileName.c_str());
-		}
-		else if (line.find("map_Ks") == 0)
-		{
-			std::string mapFilename;
-			ss >> header >> mapFilename;
-			std::string fileName = directory + mapFilename;
-			meshMaterial.mapKs.load(fileName.c_str());
-		}
-		else if (line.find("bump") == 0)
-		{
-			std::string mapFilename;
-			ss >> header >> mapFilename;
-			std::string fileName = directory + mapFilename;
-			meshMaterial.mapBump.load(fileName.c_str());
-		}
 	}
 }
 
@@ -135,13 +123,56 @@ void Mesh::InitialiseFromFile(const char* filename)
 
 	if (!mesh->HasTangentsAndBitangents()) CalculateTangents(vertices, numVertices, indices);
 
-	Initialise(numVertices, vertices, indices.size(), indices.data());
+	InitialiseOld(numVertices, vertices, indices.size(), indices.data());
 
 	delete[] vertices;
 
 }
 
-void Mesh::Initialise(unsigned int vertexCount, const Vertex* vertices, unsigned int indexCount, unsigned int* indices)
+void Mesh::Initialise(std::vector<Vertex> vertices, std::vector<unsigned int> indices)
+{
+	assert(vao == 0);
+
+	glGenVertexArrays(1, &vao);
+	glGenBuffers(1, &vbo);
+
+	glBindVertexArray(vao);
+	glBindBuffer(GL_ARRAY_BUFFER, vbo);
+
+	glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(Vertex), &vertices[0], GL_STATIC_DRAW);
+
+	if (indices.size() != 0)
+	{
+		glGenBuffers(1, &ibo);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
+
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned int), &indices[0], GL_STATIC_DRAW);
+
+		triCount = indices.size() / 3;
+	}
+	else
+	{
+		triCount = vertices.size() / 3;
+	}
+
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, position));
+
+	glEnableVertexAttribArray(1);
+	glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, normal));
+
+	glEnableVertexAttribArray(2);
+	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, texCoord));
+
+	glEnableVertexAttribArray(3);
+	glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, tangent));
+
+	glBindVertexArray(0);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+}
+
+void Mesh::InitialiseOld(unsigned int vertexCount, const Vertex* vertices, unsigned int indexCount, unsigned int* indices)
 {
 	assert(vao == 0);
 
@@ -165,7 +196,7 @@ void Mesh::Initialise(unsigned int vertexCount, const Vertex* vertices, unsigned
 	glEnableVertexAttribArray(3);
 	glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, tangent));
 
-	if (indexCount != 0)
+	if( indexCount != 0 )
 	{
 		glGenBuffers(1, &ibo);
 

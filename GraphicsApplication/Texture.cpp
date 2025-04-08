@@ -4,138 +4,120 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
 
-namespace aie {
-
-Texture::Texture() 
-	: m_filename("none"),
-	m_width(0),
-	m_height(0),
-	m_glHandle(0),
-	m_format(0),
-	m_loadedPixels(nullptr) {
+Texture::Texture() : path("none"), width(0), height(0), format(0), pixels(nullptr)
+{
 }
 
-Texture::Texture(const char * filename)
-	: m_filename("none"),
-	m_width(0),
-	m_height(0),
-	m_glHandle(0),
-	m_format(0),
-	m_loadedPixels(nullptr) {
-
-	load(filename);
+Texture::Texture(const std::string& path, const std::string& type) : path("none"), type(type), width(0), height(0), format(0), pixels(nullptr)
+{
+	Load(path);
 }
 
-Texture::Texture(unsigned int width, unsigned int height, Format format, unsigned char* pixels)
-	: m_filename("none"),
-	m_width(width),
-	m_height(height),
-	m_format(format),
-	m_loadedPixels(nullptr) {
-
-	create(width, height, format, pixels);
+Texture::Texture(unsigned int width, unsigned int height, Format format, unsigned char* pixels) : path("none"), width(0), height(0), format(0), pixels(nullptr)
+{
+	Create(width, height, format, pixels);
 }
 
-Texture::~Texture() {
-	if (m_glHandle != 0)
-		glDeleteTextures(1, &m_glHandle);
-	if (m_loadedPixels != nullptr)
-		stbi_image_free(m_loadedPixels);
+Texture::~Texture()
+{
+	if( textureID != 0 ) glDeleteTextures(1, &textureID);
+	if( pixels ) stbi_image_free(pixels);
 }
 
-bool Texture::load(const char* filename) {
-
-	if (m_glHandle != 0) {
-		glDeleteTextures(1, &m_glHandle);
-		m_glHandle = 0;
-		m_width = 0;
-		m_height = 0;
-		m_filename = "none";
+bool Texture::Load(const std::string& path)
+{
+	if( textureID != 0 )
+	{
+		glDeleteTextures(1, &textureID);
+		textureID = 0;
+		width = 0;
+		height = 0;
+		format = 0;
+		pixels = nullptr;
+		this->path = "none";
 	}
 
-	int x = 0, y = 0, comp = 0;
-	m_loadedPixels = stbi_load(filename, &x, &y, &comp, STBI_default);
+	int width, height, channels;
+	stbi_set_flip_vertically_on_load(1);
+	pixels = stbi_load(path.c_str(), &width, &height, &channels, 0);
 
-	if (m_loadedPixels != nullptr) {
-		glGenTextures(1, &m_glHandle);
-		glBindTexture(GL_TEXTURE_2D, m_glHandle);
-		switch (comp) {
+	if( pixels )
+	{
+		glCreateTextures(GL_TEXTURE_2D, 1, &textureID);
+
+		switch( channels )
+		{
 		case STBI_grey:
-			m_format = RED;
-			glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, x, y,
-						 0, GL_RED, GL_UNSIGNED_BYTE, m_loadedPixels);
+			format = RED;
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, width, height, 0, GL_RED, GL_UNSIGNED_BYTE, pixels);
 			break;
 		case STBI_grey_alpha:
-			m_format = RG;
-			glTexImage2D(GL_TEXTURE_2D, 0, GL_RG, x, y,
-						 0, GL_RG, GL_UNSIGNED_BYTE, m_loadedPixels);
+			format = RG;
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_RG, width, height, 0, GL_RG, GL_UNSIGNED_BYTE, pixels);
 			break;
 		case STBI_rgb:
-			m_format = RGB;
-			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, x, y,
-						 0, GL_RGB, GL_UNSIGNED_BYTE, m_loadedPixels);
+			format = RGB;
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, pixels);
 			break;
 		case STBI_rgb_alpha:
-			m_format = RGBA;
-			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, x, y,
-						 0, GL_RGBA, GL_UNSIGNED_BYTE, m_loadedPixels);
+			format = RGBA;
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
 			break;
-		default:	break;
-		};
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		default:
+			break;
+		}
+
+		glTextureParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTextureParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 		glGenerateMipmap(GL_TEXTURE_2D);
-		glBindTexture(GL_TEXTURE_2D, 0);
-		m_width = (unsigned int)x;
-		m_height = (unsigned int)y;
-		m_filename = filename;
+
+		this->width = (unsigned int)width;
+		this->height = (unsigned int)height;
+		this->path = path;
+
 		return true;
 	}
 	return false;
 }
 
-void Texture::create(unsigned int width, unsigned int height, Format format, unsigned char* pixels) {
-
-	if (m_glHandle != 0) {
-		glDeleteTextures(1, &m_glHandle);
-		m_glHandle = 0;
-		m_filename = "none";
+void Texture::Create(unsigned int width, unsigned int height, Format format, unsigned char* pixels)
+{
+	if( textureID != 0 )
+	{
+		glDeleteTextures(1, &textureID);
+		textureID = 0;
+		path = "none";
 	}
 
-	m_width = width;
-	m_height = height;
-	m_format = format;
+	this->width = width;
+	this->height = height;
+	this->format = format;
 
-	glGenTextures(1, &m_glHandle);
-	glBindTexture(GL_TEXTURE_2D, m_glHandle);
+	glCreateTextures(GL_TEXTURE_2D, 1, &textureID);
 
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTextureParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTextureParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glGenerateMipmap(GL_TEXTURE_2D);
 
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-
-	switch (m_format) {
+	switch( format )
+	{
 	case RED:
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, m_width, m_height, 0, GL_RED, GL_UNSIGNED_BYTE, pixels);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, width, height, 0, GL_RED, GL_UNSIGNED_BYTE, pixels);
 		break;
 	case RG:
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RG, m_width, m_height, 0, GL_RG, GL_UNSIGNED_BYTE, pixels);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RG, width, height, 0, GL_RG, GL_UNSIGNED_BYTE, pixels);
 		break;
 	case RGB:
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, m_width, m_height, 0, GL_RGB, GL_UNSIGNED_BYTE, pixels);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, pixels);
 		break;
 	case RGBA:
 	default:
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, m_width, m_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
-	};
-
-	glBindTexture(GL_TEXTURE_2D, 0);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
+		break;
+	}
 }
 
-void Texture::bind(unsigned int slot) const {
-	glActiveTexture(GL_TEXTURE0 + slot);
-	glBindTexture(GL_TEXTURE_2D, m_glHandle);
+void Texture::Bind(unsigned int slot) const
+{
+	glBindTextureUnit(slot, textureID);
 }
-
-} // namespace aie

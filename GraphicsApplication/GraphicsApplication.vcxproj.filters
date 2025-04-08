@@ -114,9 +114,6 @@
     <ClCompile Include="Shader.cpp">
       <Filter>Source Files\Third Party\AIE</Filter>
     </ClCompile>
-    <ClCompile Include="Texture.cpp">
-      <Filter>Source Files\Third Party\AIE</Filter>
-    </ClCompile>
     <ClCompile Include="Viewer3D.cpp">
       <Filter>Source Files\Application\3D Viewer</Filter>
     </ClCompile>
@@ -145,6 +142,9 @@
       <Filter>Source Files\Engine</Filter>
     </ClCompile>
     <ClCompile Include="VertexArray.cpp">
+      <Filter>Source Files\Engine</Filter>
+    </ClCompile>
+    <ClCompile Include="Texture.cpp">
       <Filter>Source Files\Engine</Filter>
     </ClCompile>
   </ItemGroup>
@@ -186,9 +186,6 @@
       <Filter>Header Files\Third Party\AIE</Filter>
     </ClInclude>
     <ClInclude Include="Shader.h">
-      <Filter>Header Files\Third Party\AIE</Filter>
-    </ClInclude>
-    <ClInclude Include="Texture.h">
       <Filter>Header Files\Third Party\AIE</Filter>
     </ClInclude>
     <ClInclude Include="..\dep\include\imgui\imconfig.h">
@@ -264,6 +261,9 @@
       <Filter>Header Files\Engine</Filter>
     </ClInclude>
     <ClInclude Include="VertexArray.h">
+      <Filter>Header Files\Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="Texture.h">
       <Filter>Header Files\Engine</Filter>
     </ClInclude>
   </ItemGroup>
