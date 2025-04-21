@@ -21,7 +21,7 @@ public:
 
 
 	void ApplyMaterial(aie::ShaderProgram& shader);
-	void LoadMaterial(const char* filename);
+	void LoadMaterial(const std::string& path);
 
 	void InitialiseFromFile(const char* filename);
 	void Initialise(std::vector<Vertex> vertices, std::vector<unsigned int> indices);
@@ -37,6 +37,8 @@ public:
 
 protected:
 	std::vector<Texture> textures;
+	std::vector<Vertex> vertices;
+	std::vector<unsigned int> indices;
 	unsigned int triCount;
 	unsigned int vao, vbo, ibo;
 };

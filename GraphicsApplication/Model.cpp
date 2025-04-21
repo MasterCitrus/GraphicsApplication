@@ -5,7 +5,7 @@
 #include <iostream>
 
 
-Model::Model(const char* path)
+Model::Model(const std::string& path)
 {
 	LoadModel(path);
 }
@@ -17,6 +17,7 @@ Model::Model(Mesh mesh)
 
 Model::~Model()
 {
+	for (auto& mesh : meshes) mesh.Clear();
 	meshes.clear();
 }
 
@@ -29,23 +30,23 @@ void Model::Draw(ShaderProgram& shader)
 	}
 }
 
-void Model::LoadModel(const char* path)
+void Model::LoadModel(const std::string& path)
 {
 	Assimp::Importer import;
 
-	std::string temp = path;
-
-	const aiScene* scene = import.ReadFile(temp, aiProcess_Triangulate);
+	const aiScene* scene = import.ReadFile(path, aiProcess_Triangulate | aiProcess_GenSmoothNormals | aiProcess_CalcTangentSpace);
 
 	if( !scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode )
 	{
 		std::cout << "ASSIMP ERROR: " << import.GetErrorString() << '\n';
 	}
 
+	directory = path.substr(0, path.find_last_of("/\\"));
+
 	ProcessNode(scene->mRootNode, scene);
 }
 
-void Model::LoadMaterials(const char* path)
+void Model::LoadMaterials(const std::string& path)
 {
 	for( auto& mesh : meshes )
 	{
@@ -78,26 +79,22 @@ void Model::ProcessNode(aiNode* node, const aiScene* scene)
 
 Mesh Model::ProcessMesh(aiMesh* mesh, const aiScene* scene)
 {
-	int numFaces = mesh->mNumFaces;
+	unsigned int numFaces = mesh->mNumFaces;
 	std::vector<unsigned int> indices;
 
-	for( int i = 0; i < numFaces; i++ )
+	for( unsigned int i = 0; i < numFaces; i++ )
 	{
-		indices.push_back(mesh->mFaces[i].mIndices[0]);
-		indices.push_back(mesh->mFaces[i].mIndices[2]);
-		indices.push_back(mesh->mFaces[i].mIndices[1]);
+		aiFace face = mesh->mFaces[i];
 
-		if( mesh->mFaces[i].mNumIndices == 4 )
+		for (int j = 0; j < face.mNumIndices; j++)
 		{
-			indices.push_back(mesh->mFaces[i].mIndices[0]);
-			indices.push_back(mesh->mFaces[i].mIndices[3]);
-			indices.push_back(mesh->mFaces[i].mIndices[2]);
+			indices.push_back(face.mIndices[j]);
 		}
 	}
 
-	int numVertices = mesh->mNumVertices;
+	unsigned int numVertices = mesh->mNumVertices;
 	std::vector<Vertex> vertices;
-	for( int i = 0; i < numVertices; i++ )
+	for( unsigned int i = 0; i < numVertices; i++ )
 	{
 		Vertex vertex;
 		vertex.position = glm::vec4(mesh->mVertices[i].x, mesh->mVertices[i].y, mesh->mVertices[i].z, 1);
@@ -157,7 +154,8 @@ std::vector<Texture> Model::LoadMaterialTextures(aiMaterial* mat, aiTextureType 
 		}
 		if( !skip )
 		{
-			Texture texture(str.C_Str(), typeName);
+			std::string filename = directory + "\\" + str.C_Str();
+			Texture texture(filename, typeName);
 			textures.push_back(texture);
 			texturesLoaded.push_back(texture);
 		}

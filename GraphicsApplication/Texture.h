@@ -15,11 +15,16 @@ public:
 
 	Texture();
 	Texture(const std::string& path, const std::string& type);
-	Texture(unsigned int width, unsigned int height, Format format, unsigned char* pixels = nullptr);
+	Texture(unsigned int width, unsigned int height, Format format, unsigned char* data = nullptr);
+	Texture(const Texture& other);
+	Texture(Texture&& other) noexcept;
 	~Texture();
 
+	Texture operator=(const Texture& other);
+	Texture& operator=(Texture&& other) noexcept;
+
 	bool Load(const std::string& path);
-	void Create(unsigned int width, unsigned int height, Format format, unsigned char* pixels = nullptr);
+	void Create(unsigned int width, unsigned int height, Format format, unsigned char* data = nullptr);
 
 	unsigned int GetWidth() const { return width; }
 	unsigned int GetHeight() const { return height; }
@@ -35,5 +40,5 @@ private:
 	unsigned int width, height;
 	unsigned int textureID;
 	unsigned int format;
-	unsigned char* pixels;
+	unsigned char* data;
 };

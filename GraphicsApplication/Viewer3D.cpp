@@ -600,14 +600,14 @@ void Viewer3D::LoadModel()
 	std::string path;
 	if( Filesystem::LoadFilePath(path, FileType::Model) )
 	{
-		Model* model = new Model(path.c_str());
+		Model* model = new Model(path);
 
 		size_t index = path.find(".obj");
 
 		if( index != -1 )
 		{
 			path.replace(index, path.size(), ".mtl");
-			model->LoadMaterials(path.c_str());
+			model->LoadMaterials(path);
 		}
 		scene->AddObject(new Object(model, shader));
 	}
