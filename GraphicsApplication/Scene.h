@@ -17,7 +17,7 @@ class Scene
 protected:
 
 	std::vector<Light*> pointLights;
-	std::list<Object*> objects;
+	std::vector<Object*> objects;
 	std::list<Instance*> instances;
 	Light sunLight;
 	Camera* camera;
@@ -51,5 +51,5 @@ public:
 
 	std::vector<Light*>& GetPointLights() { return pointLights; }
 	std::list<Instance*> GetInstances() { return instances; }
-	std::list<Object*> GetObjects() { return objects; }
+	std::vector<Object*> GetObjects() { return objects; }
 };

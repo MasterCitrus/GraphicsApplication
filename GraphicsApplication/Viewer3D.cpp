@@ -309,15 +309,15 @@ bool Viewer3D::Startup()
 	scene->AddLight(new Light(glm::vec3(-5, 3, 0), glm::vec3(0, 1, 0), 100));
 	scene->AddLight(new Light(glm::vec3(0, 5, 0), glm::vec3(0, 0, 1), 100));
 
-	Mesh* mesh = new Mesh();
-	mesh->InitialiseQuad();
-	mesh->meshMaterial.Kd = { 0.5f, 0.5f, 0.5f };
-	Model* quadModel = new Model(mesh);
-	Object* quad = new Object(quadModel, &shader);
-	quad->GetTransform().SetScale(10);
-	quad->GetTransform().SetPosition({ 0.0f, -0.1f, 0.0f });
+	//Mesh* mesh = new Mesh();
+	//mesh->InitialiseQuad();
+	//mesh->meshMaterial.Kd = { 0.5f, 0.5f, 0.5f };
+	//Model* quadModel = new Model(mesh);
+	//Object* quad = new Object(quadModel, &shader);
+	//quad->GetTransform().SetScale(10);
+	//quad->GetTransform().SetPosition({ 0.0f, -0.1f, 0.0f });
 
-	scene->AddObject(quad);
+	//scene->AddObject(quad);
 
 	return true;
 }
@@ -546,7 +546,47 @@ void Viewer3D::ImGuiDraw()
 	ImGui::End();
 
 	ImGui::Begin("Properties");
-
+	ImGui::SeparatorText("Objects");
+	ImGui::BeginChild("ObjectList", ImVec2(150, 200), true);
+	static int selectedObject = 0;
+	for( int i = 0; i < scene->GetObjects().size(); i++ )
+	{
+		auto object = scene->GetObjects()[i];
+		if( ImGui::Selectable(object->GetModel()->GetName().c_str(), selectedObject == i , 0) )
+		{
+			selectedObject = i;
+		}
+	}
+	ImGui::EndChild();
+	ImGui::SameLine();
+	ImGui::BeginChild("ObjectDetails");
+	static int selectedAnim = 0;
+	ImGui::Text("Animation List");
+	if( ImGui::BeginCombo("##AnimationList", ( scene->GetObjects().size() > 0 ) ? ( ( scene->GetObjects()[selectedObject]->GetModel()->GetAnimations().size() > 0 ) ? scene->GetObjects()[selectedObject]->GetModel()->GetAnimations()[selectedAnim]->GetName().c_str() : "" ) : "") )
+	{
+		if( scene->GetObjects().size() > 0 )
+		{
+			for( int i = 0; i < scene->GetObjects()[selectedObject]->GetModel()->GetAnimations().size(); i++ )
+			{
+				const bool isSelected = ( selectedAnim == i );
+				if( scene->GetObjects()[selectedObject]->GetModel()->GetAnimations().size() > 0 )
+				{
+					if( ImGui::Selectable(( scene->GetObjects()[selectedObject]->GetModel()->GetAnimations()[i]->GetName() + "##" + std::to_string(i) ).c_str(), isSelected, 0) )
+					{
+						selectedAnim = i;
+						auto anim = scene->GetObjects()[selectedObject]->GetModel()->GetAnimations()[i];
+						scene->GetObjects()[selectedObject]->GetModel()->GetAnimator()->PlayAnimation(anim);
+					}
+					if( isSelected )
+					{
+						ImGui::SetItemDefaultFocus();
+					}
+				}
+			}
+		}
+		ImGui::EndCombo();
+	}
+	ImGui::EndChild();
 	ImGui::End();
 
 	ImGui::Begin("Log");

@@ -18,6 +18,7 @@ Object::~Object()
 void Object::Update(float delta)
 {
 	transform.ComputeTransform();
+	model->Update(delta);
 }
 
 void Object::Draw(Scene* scene)
