@@ -32,7 +32,7 @@ public:
 	std::string GetPath() const { return path; }
 	std::string GetType() const { return type; }
 
-	void Bind(unsigned int slot = 0) const;
+	void Bind() const;
 
 private:
 	std::string path;

@@ -152,7 +152,7 @@ void Texture::Create(unsigned int width, unsigned int height, Format format, uns
 	}
 }
 
-void Texture::Bind(unsigned int slot) const
+void Texture::Bind() const
 {
-	glBindTextureUnit(slot, textureID);
+	glBindTexture(GL_TEXTURE_2D, textureID);
 }

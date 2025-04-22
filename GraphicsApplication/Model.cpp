@@ -25,8 +25,8 @@ void Model::Draw(ShaderProgram& shader)
 {
 	for( auto& mesh : meshes )
 	{
-		mesh.ApplyMaterial(shader);
-		mesh.Draw();
+		//mesh.ApplyMaterial(shader);
+		mesh.Draw(shader);
 	}
 }
 
@@ -34,7 +34,7 @@ void Model::LoadModel(const std::string& path)
 {
 	Assimp::Importer import;
 
-	const aiScene* scene = import.ReadFile(path, aiProcess_Triangulate | aiProcess_GenSmoothNormals | aiProcess_CalcTangentSpace);
+	const aiScene* scene = import.ReadFile(path, aiProcess_Triangulate | aiProcess_CalcTangentSpace);
 
 	if( !scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode )
 	{
@@ -79,22 +79,21 @@ void Model::ProcessNode(aiNode* node, const aiScene* scene)
 
 Mesh Model::ProcessMesh(aiMesh* mesh, const aiScene* scene)
 {
-	unsigned int numFaces = mesh->mNumFaces;
 	std::vector<unsigned int> indices;
+	std::vector<Vertex> vertices;
+	std::vector<Texture> textures;
 
-	for( unsigned int i = 0; i < numFaces; i++ )
+	for( unsigned int i = 0; i < mesh->mNumFaces; i++ )
 	{
 		aiFace face = mesh->mFaces[i];
 
-		for (int j = 0; j < face.mNumIndices; j++)
+		for (unsigned int j = 0; j < face.mNumIndices; j++)
 		{
 			indices.push_back(face.mIndices[j]);
 		}
 	}
 
-	unsigned int numVertices = mesh->mNumVertices;
-	std::vector<Vertex> vertices;
-	for( unsigned int i = 0; i < numVertices; i++ )
+	for( unsigned int i = 0; i < mesh->mNumVertices; i++ )
 	{
 		Vertex vertex;
 		vertex.position = glm::vec4(mesh->mVertices[i].x, mesh->mVertices[i].y, mesh->mVertices[i].z, 1);
@@ -113,9 +112,8 @@ Mesh Model::ProcessMesh(aiMesh* mesh, const aiScene* scene)
 		vertices.push_back(vertex);
 	}
 
-	if( !mesh->HasTangentsAndBitangents() ) Mesh::CalculateTangents(vertices.data(), numVertices, indices);
+	//if( !mesh->HasTangentsAndBitangents() ) Mesh::CalculateTangents(vertices.data(), numVertices, indices);
 
-	std::vector<Texture> textures;
 	aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
 
 	std::vector<Texture> diffuseMaps = LoadMaterialTextures(material, aiTextureType_DIFFUSE, "diffuseTex");

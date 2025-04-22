@@ -24,21 +24,23 @@ public:
 	void LoadMaterial(const std::string& path);
 
 	void InitialiseFromFile(const char* filename);
-	void Initialise(std::vector<Vertex> vertices, std::vector<unsigned int> indices);
+	void Initialise();
 	void InitialiseOld(unsigned int vertexCount, const Vertex* vertices, unsigned int indexCount = 0, unsigned int* indices = nullptr);
 	void InitialiseQuad();
-	void InitilaiseCube();
+	void InitialiseCube();
 
 	void Clear();
 
 	static void CalculateTangents(Vertex* vertices, unsigned int vertexCount, const std::vector<unsigned int>& indices);
 
-	virtual void Draw();
+	virtual void Draw(aie::ShaderProgram& shader);
 
-protected:
+public:
 	std::vector<Texture> textures;
 	std::vector<Vertex> vertices;
 	std::vector<unsigned int> indices;
+
+protected:
 	unsigned int triCount;
 	unsigned int vao, vbo, ibo;
 };

@@ -14,9 +14,10 @@ Mesh::Mesh(Vertex* vertices, unsigned int* indices, unsigned int indexCount, uns
 }
 
 Mesh::Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices, std::vector<Texture> textures) 
-	: triCount(0), vao(0), vbo(0), ibo(0), textures(textures), vertices(vertices), indices(indices)
+	: triCount(0), vao(0), vbo(0), ibo(0),
+	textures(std::move(textures)), vertices(std::move(vertices)), indices(std::move(indices))
 {
-	Initialise(vertices, indices);
+	Initialise();
 }
 
 Mesh::~Mesh()
@@ -130,31 +131,23 @@ void Mesh::InitialiseFromFile(const char* filename)
 
 }
 
-void Mesh::Initialise(std::vector<Vertex> vertices, std::vector<unsigned int> indices)
+void Mesh::Initialise()
 {
 	assert(vao == 0);
 
 	glGenVertexArrays(1, &vao);
 	glGenBuffers(1, &vbo);
+	glGenBuffers(1, &ibo);
 
 	glBindVertexArray(vao);
-	glBindBuffer(GL_ARRAY_BUFFER, vbo);
 
+	glBindBuffer(GL_ARRAY_BUFFER, vbo);
 	glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(Vertex), &vertices[0], GL_STATIC_DRAW);
 
-	if (indices.size() != 0)
-	{
-		glGenBuffers(1, &ibo);
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned int), &indices[0], GL_STATIC_DRAW);
 
-		glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned int), &indices[0], GL_STATIC_DRAW);
-
-		triCount = (unsigned int)indices.size() / 3;
-	}
-	else
-	{
-		triCount = (unsigned int)vertices.size() / 3;
-	}
+	triCount = (unsigned int)indices.size() / 3;
 
 	glEnableVertexAttribArray(0);
 	glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, position));
@@ -169,33 +162,19 @@ void Mesh::Initialise(std::vector<Vertex> vertices, std::vector<unsigned int> in
 	glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, tangent));
 
 	glBindVertexArray(0);
-	//glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-	//glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
 void Mesh::InitialiseOld(unsigned int vertexCount, const Vertex* vertices, unsigned int indexCount, unsigned int* indices)
 {
 	assert(vao == 0);
 
-	glGenBuffers(1, &vbo);
 	glGenVertexArrays(1, &vao);
+	glGenBuffers(1, &vbo);
 
 	glBindVertexArray(vao);
 	glBindBuffer(GL_ARRAY_BUFFER, vbo);
 
 	glBufferData(GL_ARRAY_BUFFER, vertexCount * sizeof(Vertex), vertices, GL_STATIC_DRAW);
-
-	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, position));
-
-	glEnableVertexAttribArray(1);
-	glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, normal));
-
-	glEnableVertexAttribArray(2);
-	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, texCoord));
-
-	glEnableVertexAttribArray(3);
-	glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, tangent));
 
 	if( indexCount != 0 )
 	{
@@ -211,6 +190,18 @@ void Mesh::InitialiseOld(unsigned int vertexCount, const Vertex* vertices, unsig
 	{
 		triCount = vertexCount / 3;
 	}
+
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, position));
+
+	glEnableVertexAttribArray(1);
+	glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, normal));
+
+	glEnableVertexAttribArray(2);
+	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, texCoord));
+
+	glEnableVertexAttribArray(3);
+	glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, tangent));
 
 	glBindVertexArray(0);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
@@ -272,7 +263,7 @@ void Mesh::InitialiseQuad()
 	triCount = 2;
 }
 
-void Mesh::InitilaiseCube()
+void Mesh::InitialiseCube()
 {
 	assert(vao == 0);
 	
@@ -405,18 +396,34 @@ void Mesh::CalculateTangents(Vertex* vertices, unsigned int vertexCount, const s
 	delete[] tan1;
 }
 
-void Mesh::Draw()
+void Mesh::Draw(aie::ShaderProgram& shader)
 {
+	shader.bindUniform("Ka", meshMaterial.Ka);
+	shader.bindUniform("Kd", meshMaterial.Kd);
+	shader.bindUniform("Ks", meshMaterial.Ks);
+	shader.bindUniform("specularPower", meshMaterial.shininess);
+
+	unsigned int diffuseNr = 1;
+	unsigned int specularNr = 1;
+	unsigned int normalNr = 1;
+	unsigned int heightNr = 1;
+	for( int i = 0; i < textures.size(); i++ )
+	{
+		glActiveTexture(GL_TEXTURE0 + i);
+		std::string number;
+		std::string name = textures[i].GetType();
+		if( name == "diffuseTex" ) number = std::to_string(diffuseNr++);
+		else if( name == "specularTex" ) number = std::to_string(specularNr++);
+		else if( name == "normalTex" ) number = std::to_string(normalNr++);
+		else if( name == "heightTex" ) number = std::to_string(heightNr++);
+
+		glBindTexture(GL_TEXTURE_2D, textures[i].GetTextureID());
+		shader.bindUniform(( name + number ).c_str(), i);
+	}
+
 	glBindVertexArray(vao);
-
-	if (ibo != 0)
-	{
-		glDrawElements(GL_TRIANGLES, (unsigned int)indices.size(), GL_UNSIGNED_INT, 0);
-	}
-	else
-	{
-		glDrawArrays(GL_TRIANGLES, 0, 3 * triCount);
-	}
-
+	glDrawElements(GL_TRIANGLES, static_cast<unsigned int>(indices.size()), GL_UNSIGNED_INT, 0);
 	glBindVertexArray(0);
+
+	glActiveTexture(GL_TEXTURE0);
 }
