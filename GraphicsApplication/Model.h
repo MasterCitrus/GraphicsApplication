@@ -32,6 +32,8 @@ public:
 	void LoadModel(const char* path);
 	void LoadMaterials(const char* path);
 	void LoadAnimations(const aiScene* scene);
+
+	void LoadAnimation(const char* path);
 	void ResetModel();
 
 private:

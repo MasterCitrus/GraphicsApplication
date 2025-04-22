@@ -33,6 +33,12 @@ Model::~Model()
 {
 	for( Mesh* mesh : meshes ) delete mesh;
 	meshes.clear();
+
+	if (animations.size() > 0)
+	{
+		for (Animation* anim : animations) delete anim;
+		animations.clear();
+	}
 }
 
 void Model::Update(float delta)
@@ -89,6 +95,12 @@ void Model::LoadAnimations(const aiScene* scene)
 	{
 		animations.push_back(ProcessAnimation(scene->mAnimations[i], root));
 	}
+}
+
+void Model::LoadAnimation(const char* path)
+{
+	Animation* anim = new Animation(path, this);
+	animations.push_back(anim);
 }
 
 void Model::ResetModel()
@@ -178,7 +190,7 @@ Animation* Model::ProcessAnimation(aiAnimation* animation, aiNode* node)
 
 void Model::SetVertexToBoneDataToDefault(Vertex& vertex)
 {
-	for( int i = 0; i < MAX_BONE_WEIGHTS; i++ )
+	for( int i = 0; i < MAX_BONE_INFLUENCE; i++ )
 	{
 		vertex.boneIDs[i] = -1;
 		vertex.boneWeights[i] = 0.0f;
@@ -187,7 +199,7 @@ void Model::SetVertexToBoneDataToDefault(Vertex& vertex)
 
 void Model::SetVertexBoneData(Vertex& vertex, int boneID, float weight)
 {
-	for( int i = 0; i < MAX_BONE_WEIGHTS; ++i )
+	for( int i = 0; i < MAX_BONE_INFLUENCE; ++i )
 	{
 		if( vertex.boneIDs[i] < 0 )
 		{

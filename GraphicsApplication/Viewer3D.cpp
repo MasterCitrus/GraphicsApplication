@@ -586,6 +586,10 @@ void Viewer3D::ImGuiDraw()
 		}
 		ImGui::EndCombo();
 	}
+	if (ImGui::Button("Add Animation"))
+	{
+		LoadAnimation(scene->GetObjects()[selectedObject]->GetModel());
+	}
 	ImGui::EndChild();
 	ImGui::End();
 
@@ -627,7 +631,7 @@ void Viewer3D::ImGuiDraw()
 void Viewer3D::OnEvent(Event& e)
 {
 	Application::OnEvent(e);
-	if( viewportHovered || ( viewportFocused && viewportHovered ) ) camera->OnEvent(e);
+	if( viewportHovered || ( viewportFocused && viewportHovered ) || viewportFocused) camera->OnEvent(e);
 
 	EventDispatcher dispatcher(e);
 	dispatcher.Dispatch<KeyPressedEvent>(BIND_EVENT_FN( Viewer3D::OnKeyPressed ));
@@ -650,6 +654,16 @@ void Viewer3D::LoadModel()
 			model->LoadMaterials(path.c_str());
 		}
 		scene->AddObject(new Object(model, &shader));
+	}
+	else std::cout << "File load failed or cancelled\n";
+}
+
+void Viewer3D::LoadAnimation(Model* model)
+{
+	std::string path;
+	if (Filesystem::LoadFilePath(path, FileType::Model))
+	{
+		model->LoadAnimation(path.c_str());
 	}
 	else std::cout << "File load failed or cancelled\n";
 }

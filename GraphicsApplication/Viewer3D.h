@@ -30,6 +30,7 @@ public:
 	void OnEvent(Event& e) override;
 
 	void LoadModel();
+	void LoadAnimation(Model* model);
 	void LoadSkybox();
 
 protected:

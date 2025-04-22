@@ -3,7 +3,7 @@
 #include <string>
 #include <filesystem>
 
-static nfdfilteritem_t modelFileTypes[] = { {"Wavefront", "obj"}, {"FBX", "fbx"} };
+static nfdfilteritem_t modelFileTypes[] = { {"Wavefront", "obj"}, {"FBX", "fbx"}, {"Collada", "dae"} };
 static nfdfilteritem_t imageFileTypes[] = { {"JPEG", "jpg"}, {"PNG", "png"}, {"Targa", "tga"} };
 
 static std::string defaultLocation = std::filesystem::current_path().string();

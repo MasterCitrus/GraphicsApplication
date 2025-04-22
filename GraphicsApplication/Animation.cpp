@@ -11,8 +11,13 @@ Animation::Animation(aiNode* node, aiAnimation* animation, Model* model)
 {
 	duration = animation->mDuration;
 	ticksPerSecond = animation->mTicksPerSecond;
+
+	//aiMatrix4x4 globalTransformation = node->mTransformation;
+	//globalTransformation = globalTransformation.Inverse();
+
 	name = animation->mName.C_Str();
 	name = name.substr(name.find_last_of("|") + 1);
+
 	ReadHierarchyData(rootNode, node);
 	ReadMissingBones(animation, *model);
 }
@@ -24,6 +29,13 @@ Animation::Animation(const std::string& animationPath, Model* model)
 	assert(scene && scene->mRootNode);
 
 	auto animation = scene->mAnimations[0];
+
+	name = animation->mName.C_Str();
+	name = name.substr(name.find_last_of("|") + 1);
+
+	aiMatrix4x4 globalTransformation = scene->mRootNode->mTransformation;
+	globalTransformation = globalTransformation.Inverse();
+
 	duration = animation->mDuration;
 	ticksPerSecond = animation->mTicksPerSecond;
 	ReadHierarchyData(rootNode, scene->mRootNode);
