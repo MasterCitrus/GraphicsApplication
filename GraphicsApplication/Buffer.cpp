@@ -28,6 +28,8 @@ static unsigned int ShaderDataTypeSize(ShaderDataType type)
 		return 4 * 4;
 	case ShaderDataType::Bool:
 		return 1;
+	default:
+		return -1;
 	}
 }
 

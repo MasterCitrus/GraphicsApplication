@@ -21,7 +21,7 @@ static GLenum ShaderDataTypeToOpenGLBaseType(ShaderDataType type)
 		return GL_BOOL;
 	}
 
-	assert(false, "Unknown ShaderDataType!");
+	assert(false && "Unknown ShaderDataType!");
 	return 0;
 
 }

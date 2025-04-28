@@ -232,6 +232,8 @@ std::string GetGLType(unsigned int type)
 		return "UImage2DMSArray";
 	case GL_UNSIGNED_INT_ATOMIC_COUNTER:
 		return "AtomicUInt";
+	default:
+		return "INVALID";
 	}
 }
 
@@ -607,7 +609,7 @@ void Viewer3D::ImGuiDraw()
 
 	if( FramebufferSpec spec = framebuffer->GetSpec(); availableViewport.x > 0.0f && availableViewport.y > 0.0f && ( spec.width != availableViewport.x || spec.height != availableViewport.y ) )
 	{
-		framebuffer->Resize(availableViewport.x, availableViewport.y);
+		framebuffer->Resize((unsigned int)availableViewport.x, (unsigned int)availableViewport.y);
 		camera->SetViewportSize(availableViewport.x, availableViewport.y);
 	}
 
@@ -646,7 +648,7 @@ void Viewer3D::LoadModel()
 	{
 		Model* model = new Model(path.c_str());
 
-		int index = path.find(".obj");
+		std::size_t index = path.find(".obj");
 
 		if( index != -1 )
 		{
@@ -673,7 +675,7 @@ void Viewer3D::LoadSkybox()
 	std::string path;
 	if( Filesystem::LoadPath(path) )
 	{
-		int index = path.find_last_of("/\\");
+		std::size_t index = path.find_last_of("/\\");
 		skyboxName = path.substr(index + 1);
 		if( skybox )
 		{

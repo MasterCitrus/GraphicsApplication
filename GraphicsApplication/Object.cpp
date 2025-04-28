@@ -41,10 +41,13 @@ void Object::Draw(Scene* scene)
 	shader->bindUniform("PointLightPosition", numLights, scene->GetLightPositions());
 	shader->bindUniform("PointLightColour", numLights, scene->GetLightColours());
 
-	auto transforms = model->GetAnimator()->GetFinalBoneMatrices();
-	for (int i = 0; i < transforms.size(); ++i)
+	if(model->GetAnimations().size() > 0 )
 	{
-		shader->bindUniform(("finalBoneMatrices[" + std::to_string(i) + "]").c_str(), transforms[i]);
+		auto transforms = model->GetAnimator()->GetFinalBoneMatrices();
+		for( int i = 0; i < transforms.size(); ++i )
+		{
+			shader->bindUniform(( "finalBoneMatrices[" + std::to_string(i) + "]" ).c_str(), transforms[i]);
+		}
 	}
 
 	model->Draw(shader);

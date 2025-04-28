@@ -35,8 +35,8 @@ glm::vec3 Camera::GetForwardVector() const
 
 void Camera::SetViewportSize(float width, float height)
 {
-	this->width = width;
-	this->height = height;
+	this->width = (unsigned int)width;
+	this->height = (unsigned int)height;
 
 	UpdateProjection();
 }

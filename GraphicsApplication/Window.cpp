@@ -56,7 +56,7 @@ void Window::Init(const WindowProperties& properties)
 	if (!success)
 	{
 		std::cout << "GLFW failed to initialise.\n";
-		__debugbreak;
+		__debugbreak();
 	}
 
 	window = glfwCreateWindow(windowData.width, windowData.height, windowData.title.c_str(), windowData.fullscreen ? glfwGetPrimaryMonitor() : nullptr, nullptr);
@@ -64,7 +64,7 @@ void Window::Init(const WindowProperties& properties)
 	if (!window)
 	{
 		std::cout << "Window failed to create.\n";
-		__debugbreak;
+		__debugbreak();
 	}
 
 	context = new GraphicsContext(window);

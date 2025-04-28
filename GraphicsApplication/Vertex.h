@@ -5,8 +5,8 @@
 
 struct Vertex
 {
-	glm::vec4 position;
-	glm::vec4 normal;
+	glm::vec3 position;
+	glm::vec3 normal;
 	glm::vec2 texCoord;
 	glm::vec4 tangent;
 	int boneIDs[MAX_BONE_INFLUENCE];

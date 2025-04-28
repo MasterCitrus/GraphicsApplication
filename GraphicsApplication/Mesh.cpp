@@ -52,7 +52,7 @@ void Mesh::LoadMaterial(const char* filename)
 	char buffer[256];
 
 	std::string directory(filename);
-	int index = directory.find_last_of('/\\');
+	std::size_t index = directory.find_last_of("/ \\");
 	if (index != -1)
 	{
 		directory = directory.substr(0, index + 1);
@@ -135,7 +135,7 @@ void Mesh::InitialiseFromFile(const char* filename)
 
 	if (!mesh->HasTangentsAndBitangents()) CalculateTangents(vertices, numVertices, indices);
 
-	Initialise(numVertices, vertices, indices.size(), indices.data());
+	Initialise(numVertices, vertices, (unsigned int)indices.size(), indices.data());
 
 	delete[] vertices;
 
@@ -194,15 +194,15 @@ void Mesh::InitialiseQuad()
 	glBindBuffer(GL_ARRAY_BUFFER, vbo);
 
 	Vertex vertices[4];
-	vertices[0].position = { 0.5f, 0.0f, 0.5f, 1 };
-	vertices[1].position = { 0.5f, 0.0f, -0.5f, 1 };
-	vertices[2].position = { -0.5f, 0.0f, -0.5f, 1 };
-	vertices[3].position = { -0.5f, 0.0f, 0.5f, 1 };
+	vertices[0].position = { 0.5f, 0.0f, 0.5f };
+	vertices[1].position = { 0.5f, 0.0f, -0.5f };
+	vertices[2].position = { -0.5f, 0.0f, -0.5f };
+	vertices[3].position = { -0.5f, 0.0f, 0.5f };
 
-	vertices[0].normal = { 0, 1, 0, 0};
-	vertices[1].normal = { 0, 1, 0, 0};
-	vertices[2].normal = { 0, 1, 0, 0};
-	vertices[3].normal = { 0, 1, 0, 0};
+	vertices[0].normal = { 0, 1, 0};
+	vertices[1].normal = { 0, 1, 0};
+	vertices[2].normal = { 0, 1, 0};
+	vertices[3].normal = { 0, 1, 0};
 
 	vertices[0].texCoord = { 0.0f, 1.0f };
 	vertices[1].texCoord = { 1.0f, 1.0f };
@@ -331,9 +331,9 @@ void Mesh::CalculateTangents(Vertex* vertices, unsigned int vertexCount, const s
 		long i2 = indices[a + 1];
 		long i3 = indices[a + 2];
 
-		const glm::vec4& v1 = vertices[i1].position;
-		const glm::vec4& v2 = vertices[i2].position;
-		const glm::vec4& v3 = vertices[i3].position;
+		const glm::vec3& v1 = vertices[i1].position;
+		const glm::vec3& v2 = vertices[i2].position;
+		const glm::vec3& v3 = vertices[i3].position;
 
 		const glm::vec2& w1 = vertices[i1].position;
 		const glm::vec2& w2 = vertices[i2].position;

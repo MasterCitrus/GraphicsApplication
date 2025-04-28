@@ -9,11 +9,11 @@
 
 Animation::Animation(aiNode* node, aiAnimation* animation, Model* model)
 {
-	duration = animation->mDuration;
-	ticksPerSecond = animation->mTicksPerSecond;
+	duration = (float)animation->mDuration;
+	ticksPerSecond = (float)animation->mTicksPerSecond;
 
-	//aiMatrix4x4 globalTransformation = node->mTransformation;
-	//globalTransformation = globalTransformation.Inverse();
+	aiMatrix4x4 globalTransformation = node->mTransformation;
+	globalTransformation = globalTransformation.Inverse();
 
 	name = animation->mName.C_Str();
 	name = name.substr(name.find_last_of("|") + 1);
@@ -36,8 +36,8 @@ Animation::Animation(const std::string& animationPath, Model* model)
 	aiMatrix4x4 globalTransformation = scene->mRootNode->mTransformation;
 	globalTransformation = globalTransformation.Inverse();
 
-	duration = animation->mDuration;
-	ticksPerSecond = animation->mTicksPerSecond;
+	duration = (float)animation->mDuration;
+	ticksPerSecond = (float)animation->mTicksPerSecond;
 	ReadHierarchyData(rootNode, scene->mRootNode);
 	ReadMissingBones(animation, *model);
 }
@@ -88,7 +88,7 @@ void Animation::ReadHierarchyData(AssimpNodeData& dest, const aiNode* src)
 	dest.transformation = ConvertMatrixToGLMFormat(src->mTransformation);
 	dest.childrenCount = src->mNumChildren;
 
-	for( int i = 0; i < src->mNumChildren; i++ )
+	for( unsigned int i = 0; i < src->mNumChildren; i++ )
 	{
 		AssimpNodeData newData;
 		ReadHierarchyData(newData, src->mChildren[i]);

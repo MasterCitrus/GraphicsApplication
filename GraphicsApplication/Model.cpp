@@ -25,7 +25,7 @@ Model::Model(Mesh* mesh)
 	meshes.push_back(mesh);
 	if( animations.size() > 0 )
 	{
-		delete animator;
+		animator = new Animator(*animations.begin());
 	}
 }
 
@@ -38,6 +38,7 @@ Model::~Model()
 	{
 		for (Animation* anim : animations) delete anim;
 		animations.clear();
+		delete animator;
 	}
 }
 
@@ -177,7 +178,7 @@ Mesh* Model::ProcessMesh(aiMesh* mesh, const aiScene* scene)
 
 	ExtractBoneWeightForVertices(vertices, mesh, scene);
 
-	Mesh* outMesh = new Mesh(vertices.data(), indices.data(), indices.size(), numVertices);
+	Mesh* outMesh = new Mesh(vertices.data(), indices.data(), (unsigned int)indices.size(), numVertices);
 
 	return outMesh;
 }

@@ -1,7 +1,7 @@
 #version 460 core
 
-layout( location = 0) in vec4 Position;
-layout( location = 1) in vec4 Normal;
+layout( location = 0) in vec3 Position;
+layout( location = 1) in vec3 Normal;
 layout( location = 2) in vec2 TexCoords;
 layout( location = 3) in vec4 Tangent;
 layout( location = 4) in ivec4 boneIDs;
@@ -30,16 +30,16 @@ void main()
 		if(boneIDs[i] == -1) continue;
 		if(boneIDs[i] >= MAX_BONES)
 		{
-			totalPosition = vec4(Position.xyz, 1.0f);
+			totalPosition = vec4(Position, 1.0f);
 			break;
 		}
-		vec4 localPosition = finalBoneMatrices[boneIDs[i]] * vec4(Position.xyz, 1.0f);
+		vec4 localPosition = finalBoneMatrices[boneIDs[i]] * vec4(Position, 1.0f);
 		totalPosition += localPosition * weights[i];
-		vec3 localNormal = mat3(finalBoneMatrices[boneIDs[i]]) * Normal.xyz;
+		vec3 localNormal = mat3(finalBoneMatrices[boneIDs[i]]) * Normal;
 	}
 
-	vPosition = ModelMatrix * Position;
-	vNormal = (ModelMatrix * Normal).xyz;
+	vPosition = ModelMatrix * vec4(Position, 1.0);
+	vNormal = (ModelMatrix * vec4(Normal, 0.0)).xyz;
 	vTexCoords = TexCoords;
 	vTangent = (ModelMatrix * vec4(Tangent.xyz, 0)).xyz;
 	vBiTangent = cross(vNormal, vTangent) * Tangent.w;

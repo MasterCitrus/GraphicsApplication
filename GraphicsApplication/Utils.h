@@ -7,6 +7,7 @@
 #include <assimp/vector3.h>
 #include <assimp/quaternion.h>
 
+//i think you can just glm::transpose(aiMatrix4x4&[0][0])
 static glm::mat4 ConvertMatrixToGLMFormat(const aiMatrix4x4& from)
 {
 	glm::mat4 to;
