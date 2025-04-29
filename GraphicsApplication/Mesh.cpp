@@ -27,19 +27,19 @@ void Mesh::ApplyMaterial(aie::ShaderProgram* shader)
 	shader->bindUniform("Ks", meshMaterial.Ks);
 	shader->bindUniform("specularPower", meshMaterial.shininess);
 
-	if( meshMaterial.mapKd.getHandle() != 0 )
+	if( meshMaterial.mapKd )
 	{
-		meshMaterial.mapKd.bind(0);
+		meshMaterial.mapKd->bind(0);
 		shader->bindUniform("diffuseTex", 0);
 	}
-	if( meshMaterial.mapKs.getHandle() != 0 )
+	if( meshMaterial.mapKs )
 	{
-		meshMaterial.mapKs.bind(1);
+		meshMaterial.mapKs->bind(1);
 		shader->bindUniform("specularTex", 1);
 	}
-	if( meshMaterial.mapBump.getHandle() != 0 )
+	if( meshMaterial.mapBump )
 	{
-		meshMaterial.mapBump.bind(2);
+		meshMaterial.mapBump->bind(2);
 		shader->bindUniform("normalTex", 2);
 	}
 }
@@ -73,21 +73,21 @@ void Mesh::LoadMaterial(const char* filename)
 			std::string mapFilename;
 			ss >> header >> mapFilename;
 			std::string fileName = directory + mapFilename;
-			meshMaterial.mapKd.load(fileName.c_str());
+			meshMaterial.mapKd->load(fileName.c_str());
 		}
 		else if (line.find("map_Ks") == 0)
 		{
 			std::string mapFilename;
 			ss >> header >> mapFilename;
 			std::string fileName = directory + mapFilename;
-			meshMaterial.mapKs.load(fileName.c_str());
+			meshMaterial.mapKs->load(fileName.c_str());
 		}
 		else if (line.find("bump") == 0)
 		{
 			std::string mapFilename;
 			ss >> header >> mapFilename;
 			std::string fileName = directory + mapFilename;
-			meshMaterial.mapBump.load(fileName.c_str());
+			meshMaterial.mapBump->load(fileName.c_str());
 		}
 	}
 }

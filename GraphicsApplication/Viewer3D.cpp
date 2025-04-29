@@ -299,11 +299,11 @@ bool Viewer3D::Startup()
 	int length;
 	int size;
 	unsigned int type;
-	for (int i = 0; i < count; i++)
-	{
-		glGetActiveUniform(shader.getHandle(), i, bufsize, &length, &size, &type, name);
-		std::cout << "Uniform: " << i << " Type: " << GetGLType(type) << " Name: " << name << '\n';
-	}
+	//for (int i = 0; i < count; i++)
+	//{
+	//	glGetActiveUniform(shader.getHandle(), i, bufsize, &length, &size, &type, name);
+	//	std::cout << "Uniform: " << i << " Type: " << GetGLType(type) << " Name: " << name << '\n';
+	//}
 
 	scene = new Scene(camera, glm::vec2(GetWindowWidth(), GetWindowHeight()), &light, ambientLight);
 	

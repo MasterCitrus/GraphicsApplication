@@ -35,7 +35,7 @@ public:
 
 	glm::mat4 GetLocalTransform() { return localTransform; }
 	std::string GetBoneName() const { return name; }
-	int GetBoneID() { return ID; }
+	int GetBoneID() const { return ID; }
 
 	int GetPositionIndex(float animationTime);
 	int GetRotationIndex(float animationTime);

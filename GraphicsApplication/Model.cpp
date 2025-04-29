@@ -65,11 +65,29 @@ void Model::LoadModel(const char* path)
 
 	std::string temp = path;
 	//aiImportFile(path, 0)
-	const aiScene* scene = import.ReadFile(temp, aiProcess_Triangulate);
+	const aiScene* scene = import.ReadFile(temp, aiProcess_Triangulate | aiProcess_GenSmoothNormals | aiProcess_CalcTangentSpace);
 
 	if( !scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode )
 	{
 		std::cout << "ASSIMP ERROR: " << import.GetErrorString() << '\n';
+		return;
+	}
+
+	aiNode* rootNode = scene->mRootNode;
+
+	for( int k = 0; k < rootNode->mNumChildren; k++ )
+	{
+		aiNode* node = rootNode->mChildren[k];
+		for( int i = 0; i < node->mNumMeshes; i++ )
+		{
+			aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
+			std::cout << mesh->mName.C_Str() << '\n';
+			for( int j = 0; j < mesh->mNumBones; j++ )
+			{
+				aiBone* bone = mesh->mBones[j];
+				std::cout << bone->mName.C_Str() << '\n';
+			}
+		}
 	}
 
 	ProcessNode(scene->mRootNode, scene);
@@ -94,7 +112,8 @@ void Model::LoadAnimations(const aiScene* scene)
 
 	for( unsigned int i = 0; i < scene->mNumAnimations; i++ )
 	{
-		animations.push_back(ProcessAnimation(scene->mAnimations[i], root));
+		auto anim = scene->mAnimations[i];
+		animations.push_back(ProcessAnimation(anim, root));
 	}
 }
 
@@ -102,6 +121,11 @@ void Model::LoadAnimation(const char* path)
 {
 	Animation* anim = new Animation(path, this);
 	animations.push_back(anim);
+
+	if( !animator )
+	{
+		animator = new Animator(*animations.begin());
+	}
 }
 
 void Model::ResetModel()
@@ -136,15 +160,10 @@ Mesh* Model::ProcessMesh(aiMesh* mesh, const aiScene* scene)
 
 	for( int i = 0; i < numFaces; i++ )
 	{
-		indices.push_back(mesh->mFaces[i].mIndices[0]);
-		indices.push_back(mesh->mFaces[i].mIndices[2]);
-		indices.push_back(mesh->mFaces[i].mIndices[1]);
-
-		if( mesh->mFaces[i].mNumIndices == 4 )
+		aiFace face = mesh->mFaces[i];
+		for( unsigned int j = 0; j < face.mNumIndices; j++ )
 		{
-			indices.push_back(mesh->mFaces[i].mIndices[0]);
-			indices.push_back(mesh->mFaces[i].mIndices[3]);
-			indices.push_back(mesh->mFaces[i].mIndices[2]);
+			indices.push_back(face.mIndices[j]);
 		}
 	}
 
@@ -152,14 +171,15 @@ Mesh* Model::ProcessMesh(aiMesh* mesh, const aiScene* scene)
 	for( int i = 0; i < numVertices; i++ )
 	{
 		Vertex vertex;
-		vertex.position = glm::vec4(mesh->mVertices[i].x, mesh->mVertices[i].y, mesh->mVertices[i].z, 1);
-		vertex.normal = glm::vec4(mesh->mNormals[i].x, mesh->mNormals[i].y, mesh->mNormals[i].z, 0);
+		SetVertexToBoneDataToDefault(vertex);
+		vertex.position = GetGLMVec(mesh->mVertices[i]);
+		vertex.normal = GetGLMVec(mesh->mNormals[i]);
 
 		if( mesh->mTextureCoords[0] )
 		{
 			vertex.texCoord = glm::vec2(mesh->mTextureCoords[0][i].x, 1.0f - mesh->mTextureCoords[0][i].y);
 		}
-		else vertex.texCoord = glm::vec2(0);
+		else vertex.texCoord = glm::vec2(0.0f);
 
 		if( mesh->HasTangentsAndBitangents() )
 		{
@@ -179,6 +199,24 @@ Mesh* Model::ProcessMesh(aiMesh* mesh, const aiScene* scene)
 	ExtractBoneWeightForVertices(vertices, mesh, scene);
 
 	Mesh* outMesh = new Mesh(vertices.data(), indices.data(), (unsigned int)indices.size(), numVertices);
+
+	if( scene->HasMaterials() )
+	{
+		aiColor3D diffuse;
+		aiColor3D specular;
+		aiColor3D ambient;
+		float shininess = 0.0f;
+
+		scene->mMaterials[mesh->mMaterialIndex]->Get(AI_MATKEY_COLOR_DIFFUSE, diffuse);
+		scene->mMaterials[mesh->mMaterialIndex]->Get(AI_MATKEY_COLOR_SPECULAR, specular);
+		scene->mMaterials[mesh->mMaterialIndex]->Get(AI_MATKEY_COLOR_AMBIENT, ambient);
+		scene->mMaterials[mesh->mMaterialIndex]->Get(AI_MATKEY_SHININESS, shininess);
+
+		outMesh->meshMaterial.Ka = { ambient.r, ambient.g, ambient.b };
+		outMesh->meshMaterial.Kd = { diffuse.r, diffuse.g, diffuse.b };
+		outMesh->meshMaterial.Ks = { specular.r, specular.g, specular.b };
+		outMesh->meshMaterial.shininess = shininess;
+	}
 
 	return outMesh;
 }
@@ -213,22 +251,25 @@ void Model::SetVertexBoneData(Vertex& vertex, int boneID, float weight)
 
 void Model::ExtractBoneWeightForVertices(std::vector<Vertex>& vertices, aiMesh* mesh, const aiScene* scene)
 {
+	auto& boneMap = boneInfoMap;
+	int& boneCount = boneCounter;
+
 	for( unsigned int boneIndex = 0; boneIndex < mesh->mNumBones; ++boneIndex )
 	{
 		int boneID = -1;
 		std::string boneName = mesh->mBones[boneIndex]->mName.C_Str();
-		if( boneInfoMap.find(boneName) == boneInfoMap.end() )
+		if( boneMap.find(boneName) == boneMap.end() )
 		{
 			BoneInfo newBoneInfo;
-			newBoneInfo.id = boneCounter;
+			newBoneInfo.id = boneCount;
 			newBoneInfo.offset = ConvertMatrixToGLMFormat(mesh->mBones[boneIndex]->mOffsetMatrix);
-			boneInfoMap[boneName] = newBoneInfo;
-			boneID = boneCounter;
-			boneCounter++;
+			boneMap[boneName] = newBoneInfo;
+			boneID = boneCount;
+			boneCount++;
 		}
 		else
 		{
-			boneID = boneInfoMap[boneName].id;
+			boneID = boneMap[boneName].id;
 		}
 		assert(boneID != -1);
 		auto weights = mesh->mBones[boneIndex]->mWeights;

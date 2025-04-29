@@ -7,13 +7,12 @@
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
 
+#include <iostream>
+
 Animation::Animation(aiNode* node, aiAnimation* animation, Model* model)
 {
 	duration = (float)animation->mDuration;
 	ticksPerSecond = (float)animation->mTicksPerSecond;
-
-	aiMatrix4x4 globalTransformation = node->mTransformation;
-	globalTransformation = globalTransformation.Inverse();
 
 	name = animation->mName.C_Str();
 	name = name.substr(name.find_last_of("|") + 1);
@@ -76,6 +75,17 @@ void Animation::ReadMissingBones(const aiAnimation* animation, Model& model)
 		}
 		bones.push_back(Bone(channel->mNodeName.data, boneInfoMap[channel->mNodeName.data].id, channel));
 	}
+
+	//std::sort(bones.begin(), bones.end(), [&](const Bone& boneA, const Bone& boneB)
+	//	{
+	//		return boneA.GetBoneID() < boneB.GetBoneID();
+	//	});
+
+	//for( int i = 0; i < bones.size(); i++ )
+	//{
+	//	std::cout << "Name: " + bones[i].GetBoneName() + " | ID: " << bones[i].GetBoneID() << '\n';
+	//}
+	//std::cout << '\n';
 
 	this->boneInfoMap = boneInfoMap;
 }

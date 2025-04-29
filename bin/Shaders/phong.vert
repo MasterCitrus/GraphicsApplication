@@ -25,6 +25,7 @@ uniform mat4 ModelMatrix;
 void main() 
 {
 	vec4 totalPosition = vec4(0.0f);
+	vec3 totalNormal = vec3(0.0f);
 	for(int i = 0; i < MAX_BONE_INFLUENCE; i++)
 	{
 		if(boneIDs[i] == -1) continue;
@@ -36,10 +37,13 @@ void main()
 		vec4 localPosition = finalBoneMatrices[boneIDs[i]] * vec4(Position, 1.0f);
 		totalPosition += localPosition * weights[i];
 		vec3 localNormal = mat3(finalBoneMatrices[boneIDs[i]]) * Normal;
+		totalNormal += localNormal * weights[i];
 	}
+	
+	totalNormal = normalize(totalNormal);
 
-	vPosition = ModelMatrix * vec4(Position, 1.0);
-	vNormal = (ModelMatrix * vec4(Normal, 0.0)).xyz;
+	vPosition = ModelMatrix * totalPosition;
+	vNormal = (ModelMatrix * vec4(totalNormal, 0.0)).xyz;
 	vTexCoords = TexCoords;
 	vTangent = (ModelMatrix * vec4(Tangent.xyz, 0)).xyz;
 	vBiTangent = cross(vNormal, vTangent) * Tangent.w;

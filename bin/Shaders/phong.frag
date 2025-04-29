@@ -79,5 +79,6 @@ void main()
 	vec3 specular = Ks * texSpecular * specularTotal;
 
 	FragColour = vec4(ambient + diffuse + specular, 1);
+	//FragColour = vec4(vPosition.xyz, 1.0);
 
 }

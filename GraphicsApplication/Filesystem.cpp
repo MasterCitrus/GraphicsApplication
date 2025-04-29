@@ -10,7 +10,7 @@ bool Filesystem::LoadFilePath(std::string& path, FileType type)
 	switch( type )
 	{
 	case FileType::Model:
-		result = NFD::OpenDialog(outPath, modelFileTypes, 3, defaultLocation.c_str());
+		result = NFD::OpenDialog(outPath, modelFileTypes, 5, defaultLocation.c_str());
 		if( result == NFD_OKAY )
 		{
 			path = outPath.get();

@@ -9,9 +9,9 @@ struct Material
 	Material();
 	~Material();
 
-	Texture mapKd;
-	Texture mapKs;
-	Texture mapBump;
+	Texture* mapKd;
+	Texture* mapKs;
+	Texture* mapBump;
 
 	glm::vec3 Kd;
 	glm::vec3 Ka;
